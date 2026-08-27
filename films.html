@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Films Showings — FilmSoc</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="films">
+
+  <header class="topbar">
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-controls="sideDrawer" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+  </header>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+
+  <nav class="drawer" id="sideDrawer" aria-label="Site navigation">
+    <div class="drawer-head">
+      <a class="brand" href="index.html">Film<span>Soc</span></a>
+      <button class="drawer-close" id="drawerClose" aria-label="Close menu">&times;</button>
+    </div>
+    <ul class="drawer-links">
+      <li><a href="index.html" data-nav="home">Home</a></li>
+      <li><a href="about.html" data-nav="about">About Us</a></li>
+      <li><a href="films.html" data-nav="films">Films Showings</a></li>
+      <li><a href="find-us.html" data-nav="find-us">Where To Find Us</a></li>
+    </ul>
+    <div class="drawer-foot">
+      <p>Films · Friends · Popcorn</p>
+      <p class="drawer-foot-sub">Every Tuesday, 7pm</p>
+    </div>
+  </nav>
+
+  <main class="page">
+    <h1>Films Showings</h1>
+    <p class="lede">One film every week. Click a title to read more on Letterboxd.</p>
+
+    <h2>This term's line-up</h2>
+    <ul class="programme">
+      <li>
+        <img src="images/the-godfather.jpg" alt="The Godfather poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/the-godfather/" target="_blank" rel="noopener">The Godfather (1972)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip">Today</span>
+      </li>
+      <li>
+        <img src="images/spirited-away.jpg" alt="Spirited Away poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/spirited-away/" target="_blank" rel="noopener">Spirited Away (2001)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip dim">Next week</span>
+      </li>
+      <li>
+        <img src="images/interstellar.jpg" alt="Interstellar poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/interstellar/" target="_blank" rel="noopener">Interstellar (2014)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip dim">In 2 weeks</span>
+      </li>
+      <li>
+        <img src="images/whiplash.jpg" alt="Whiplash poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/whiplash/" target="_blank" rel="noopener">Whiplash (2014)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip dim">Upcoming</span>
+      </li>
+      <li>
+        <img src="images/blade-runner-2049.jpg" alt="Blade Runner 2049 poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/blade-runner-2049/" target="_blank" rel="noopener">Blade Runner 2049 (2017)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip dim">Upcoming</span>
+      </li>
+      <li>
+        <img src="images/la-la-land.jpg" alt="La La Land poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/la-la-land/" target="_blank" rel="noopener">La La Land (2016)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip dim">Upcoming</span>
+      </li>
+      <li>
+        <img src="images/inception.jpg" alt="Inception poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/inception/" target="_blank" rel="noopener">Inception (2010)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip dim">Upcoming</span>
+      </li>
+      <li>
+        <img src="images/fight-club.jpg" alt="Fight Club poster">
+        <span class="film-meta">
+          <a href="https://letterboxd.com/film/fight-club/" target="_blank" rel="noopener">Fight Club (1999)</a>
+          <span class="film-date">7pm</span>
+        </span>
+        <span class="chip dim">Upcoming</span>
+      </li>
+    </ul>
+  </main>
+
+  <footer class="site-footer">&copy; 2026 FilmSoc</footer>
+
+  <script src="script.js"></script>
+</body>
+</html>

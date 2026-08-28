@@ -14,6 +14,7 @@ function formatDate(d) {
 }
 
 function formatRuntime(mins) {
+  if (!mins) return "TBC"; // TMDB sometimes has no runtime yet
   const h = Math.floor(mins / 60);
   const m = mins % 60;
   if (!h) return `${m}m`;
@@ -269,13 +270,26 @@ function populateFilmPage(film) {
   poster.alt = `${film.title} (${film.year}) poster`;
 
   document.getElementById("filmTitle").textContent = film.title;
-  document.getElementById("filmFacts").textContent =
-    `${film.year} · Directed by ${film.director} · ${formatRuntime(film.runtime)} · ${film.genres.join(" / ")}`;
+
+  // Facts are built piece by piece so entries with gaps (e.g. a runtime
+  // TMDB doesn't have yet) don't leave stray separators.
+  const facts = [];
+  if (film.year) facts.push(String(film.year));
+  if (film.director) facts.push(`Directed by ${film.director}`);
+  facts.push(formatRuntime(film.runtime));
+  if (film.genres && film.genres.length) facts.push(film.genres.join(" / "));
+  document.getElementById("filmFacts").textContent = facts.join(" · ");
+
   document.getElementById("filmSynopsis").textContent = film.synopsis;
 
   const lbLink = document.getElementById("lbLink");
-  lbLink.href = film.url;
-  lbLink.setAttribute("aria-label", `View ${film.title} on Letterboxd (opens in a new tab)`);
+  if (film.url) {
+    lbLink.hidden = false;
+    lbLink.href = film.url;
+    lbLink.setAttribute("aria-label", `View ${film.title} on Letterboxd (opens in a new tab)`);
+  } else {
+    lbLink.hidden = true;
+  }
 
   document.getElementById("screeningWhen").textContent =
     `${formatDate(parseISO(film.date))} · Doors 7:00pm · Film 7:15pm`;
@@ -287,6 +301,22 @@ function populateFilmPage(film) {
     notes.hidden = false;
     notes.textContent = `Content notes: ${film.content}`;
   }
+}
+
+// A star row with the gold fill clipped to the rating — halves work because
+// the clip width is fractional. Same technique as the average block.
+function starMeter(value) {
+  const row = document.createElement("span");
+  row.className = "stars";
+  row.setAttribute("role", "img");
+  row.setAttribute("aria-label", `${value} out of 5 stars`);
+  row.textContent = "★★★★★";
+  const fill = document.createElement("span");
+  fill.className = "stars-fill";
+  fill.textContent = "★★★★★";
+  fill.style.width = `${(value / 5) * 100}%`;
+  row.appendChild(fill);
+  return row;
 }
 
 function setupReviews(film) {
@@ -301,7 +331,7 @@ function setupReviews(film) {
   const avgBlock = document.getElementById("avgBlock");
   const avgStarsFill = document.getElementById("avgStarsFill");
   const avgText = document.getElementById("avgText");
-  const starBtns = [...document.querySelectorAll(".star-btn")];
+  const picker = document.querySelector(".star-picker");
 
   const adminArea = document.getElementById("adminArea");
   const adminPanel = document.getElementById("adminPanel");
@@ -334,21 +364,41 @@ function setupReviews(film) {
     return data;
   }
 
-  function paintStars(n) {
-    starBtns.forEach((btn) => btn.classList.toggle("on", Number(btn.dataset.value) <= n));
+  // Half-star picker: each star is a cell with a gold fill clipped by
+  // width, overlaid by two invisible click zones (left = half, right = whole).
+  function paintStars(value) {
+    picker.querySelectorAll(".pick-star").forEach((cell, i) => {
+      const frac = Math.min(Math.max(value - i, 0), 1);
+      cell.querySelector(".pick-fill").style.width = `${frac * 100}%`;
+    });
   }
 
-  starBtns.forEach((btn) => {
-    const value = Number(btn.dataset.value);
-    btn.addEventListener("click", () => {
-      selectedRating = value;
-      paintStars(value);
-      formError.hidden = true;
+  for (let star = 1; star <= 5; star++) {
+    const cell = document.createElement("span");
+    cell.className = "pick-star";
+    cell.textContent = "★";
+    const fill = document.createElement("span");
+    fill.className = "pick-fill";
+    fill.textContent = "★";
+    cell.appendChild(fill);
+    [star - 0.5, star].forEach((value, i) => {
+      const btn = document.createElement("button");
+      btn.type = "button";
+      btn.className = i === 0 ? "half-btn half-left" : "half-btn half-right";
+      btn.dataset.value = String(value);
+      btn.setAttribute("aria-label", `Rate ${value} stars`);
+      btn.addEventListener("click", () => {
+        selectedRating = value;
+        paintStars(value);
+        formError.hidden = true;
+      });
+      btn.addEventListener("mouseenter", () => paintStars(value));
+      btn.addEventListener("focus", () => paintStars(value));
+      cell.appendChild(btn);
     });
-    btn.addEventListener("mouseenter", () => paintStars(value));
-    btn.addEventListener("focus", () => paintStars(value));
-  });
-  document.querySelector(".star-picker").addEventListener("mouseleave", () => paintStars(selectedRating));
+    picker.appendChild(cell);
+  }
+  picker.addEventListener("mouseleave", () => paintStars(selectedRating));
 
   // User-submitted text is always added with textContent, never HTML.
   function renderReviews(reviews) {
@@ -362,10 +412,8 @@ function setupReviews(film) {
       const name = document.createElement("span");
       name.className = "review-name";
       name.textContent = r.name;
-      const stars = document.createElement("span");
-      stars.className = "review-stars";
-      stars.setAttribute("aria-label", `${r.rating} out of 5 stars`);
-      stars.textContent = "★".repeat(r.rating) + "☆".repeat(5 - r.rating);
+      const stars = starMeter(r.rating);
+      stars.classList.add("review-stars");
       const date = document.createElement("span");
       date.className = "review-date";
       date.textContent = new Date(r.ts * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });

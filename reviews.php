@@ -10,9 +10,10 @@
 //        { action: "set-open", key, open: bool }   open / close this film's reviews
 //        { action: "delete", key, id }             delete one review by id
 //
-// ADMIN KEY: change the constant below to anything you like. It lives only
-// on the server — visitors never see it — and is required for deleting
-// reviews and opening/closing the system.
+// ADMIN KEY: lives in config.php (copy config-sample.php there if it
+// doesn't exist yet) and is shared with films.php / admin.html. It lives
+// only on the server — visitors never see it — and is required for
+// deleting reviews and opening/closing the system.
 //
 // Reviews for a film are CLOSED by default; open them from the Admin panel
 // on the film's page once you're ready to take reviews (e.g. after the
@@ -21,16 +22,20 @@
 
 declare(strict_types=1);
 
-const ADMIN_KEY = 'joel';
 const DATA_FILE = __DIR__ . '/reviews.json';
-
-header('Content-Type: application/json; charset=utf-8');
 
 function respond(int $status, array $body): void {
     http_response_code($status);
     echo json_encode($body);
     exit;
 }
+
+if (!is_file(__DIR__ . '/config.php')) {
+    respond(500, ['error' => 'config.php is missing — copy config-sample.php to config.php and fill in your keys.']);
+}
+require __DIR__ . '/config.php';
+
+header('Content-Type: application/json; charset=utf-8');
 
 function is_admin(array $input): bool {
     return isset($input['key']) && is_string($input['key']) && hash_equals(ADMIN_KEY, $input['key']);
@@ -130,13 +135,17 @@ if (!$entry['open']) respond(403, ['error' => 'Reviews are closed for this film 
 
 $name = trim((string) ($input['name'] ?? ''));
 $text = trim((string) ($input['review'] ?? ''));
-$rating = filter_var($input['rating'] ?? null, FILTER_VALIDATE_INT, ['options' => ['min_range' => 1, 'max_range' => 5]]);
+$rating = filter_var($input['rating'] ?? null, FILTER_VALIDATE_FLOAT);
 
 if ($name === '') $name = 'Anonymous';
 if (mb_strlen($name) > 50) $name = mb_substr($name, 0, 50);
 if ($text === '') respond(422, ['error' => 'Please write a review first.']);
 if (mb_strlen($text) > 2000) respond(422, ['error' => 'Reviews are limited to 2000 characters.']);
-if ($rating === false || $rating === null) respond(422, ['error' => 'Rating must be between 1 and 5 stars.']);
+// Ratings go in half-star steps: 0.5, 1, 1.5 … 5.
+if ($rating === false || $rating === null || $rating < 0.5 || $rating > 5 || fmod($rating * 2, 1) !== 0.0) {
+    respond(422, ['error' => 'Ratings go in half-star steps from 0.5 to 5 stars.']);
+}
+$rating = fmod($rating, 1) === 0.0 ? (int) $rating : $rating; // store 4 as 4, not 4.0
 
 $entry['reviews'][] = [
     'id'     => bin2hex(random_bytes(6)),

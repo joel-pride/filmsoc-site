@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
+  <title>Manage the line-up — FilmSoc</title>
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="admin">
+
+  <header class="topbar">
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-controls="sideDrawer" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+  </header>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+
+  <nav class="drawer" id="sideDrawer" aria-label="Site navigation">
+    <div class="drawer-head">
+      <a class="brand" href="index.html" aria-label="Southampton Film Society — home">
+        <img class="brand-logo" src="images/logo.png" alt="" width="46" height="46">
+      </a>
+      <button class="drawer-close" id="drawerClose" aria-label="Close menu">&times;</button>
+    </div>
+    <ul class="drawer-links">
+      <li><a href="index.html" data-nav="home">Home</a></li>
+      <li><a href="about.html" data-nav="about">About Us</a></li>
+      <li><a href="films.html" data-nav="films">Films Showings</a></li>
+      <li><a href="find-us.html" data-nav="find-us">Where To Find Us</a></li>
+    </ul>
+    <div class="drawer-foot">
+      <p>Films · Friends · Popcorn</p>
+      <p class="drawer-foot-sub">Every Tuesday, 7pm</p>
+      <a class="drawer-admin-link" href="admin.html">Committee: manage the line-up</a>
+    </div>
+  </nav>
+
+  <main class="page">
+    <h1>Manage the line-up</h1>
+    <p class="lede">Search TMDB, pick a screening date, save — posters and details come along automatically. The public pages update the moment you save.</p>
+
+    <div class="admin-gate" id="adminGate">
+      <p class="admin-hint">Committee only — sign in with the admin key to edit this term's films.</p>
+      <div class="admin-login">
+        <input type="password" id="gateKeyInput" placeholder="Admin key" aria-label="Admin key" autocomplete="off">
+        <button type="button" class="admin-btn" id="gateSignIn">Sign in</button>
+      </div>
+      <p class="admin-error" id="gateError" hidden></p>
+    </div>
+
+    <div id="adminApp" hidden>
+      <h2>Current line-up</h2>
+      <ul class="programme" id="lineup"></ul>
+      <p class="form-hint">Posters link to the public film page. Deleting a film keeps its reviews, in case you re-add it later.</p>
+
+      <h2>Add a film</h2>
+      <form class="tmdb-search" id="searchForm">
+        <input type="text" id="searchInput" placeholder="Search TMDB by title…" autocomplete="off" aria-label="Search TMDB by title">
+        <button type="submit" class="admin-btn" id="searchBtn">Search</button>
+        <button type="button" class="admin-link" id="manualAddBtn">Add manually instead</button>
+      </form>
+      <p class="form-hint" id="searchStatus" hidden></p>
+      <ul class="tmdb-results" id="searchResults"></ul>
+
+      <h2 id="formHeading">Film details</h2>
+      <form class="film-form" id="filmForm" novalidate>
+        <div class="film-form-grid">
+          <img id="posterPreview" class="poster-preview" alt="Poster preview">
+          <div class="film-form-fields">
+            <div class="form-row">
+              <label for="fTitle">Title</label>
+              <input type="text" id="fTitle" maxlength="200" autocomplete="off" required>
+            </div>
+            <div class="form-pair">
+              <div class="form-row">
+                <label for="fYear">Year</label>
+                <input type="number" id="fYear" min="1880" max="2100" autocomplete="off">
+              </div>
+              <div class="form-row">
+                <label for="fDate">Screening date</label>
+                <input type="date" id="fDate" required>
+              </div>
+            </div>
+            <div class="form-pair">
+              <div class="form-row">
+                <label for="fDirector">Director</label>
+                <input type="text" id="fDirector" maxlength="200" autocomplete="off">
+              </div>
+              <div class="form-row">
+                <label for="fRuntime">Runtime (minutes)</label>
+                <input type="number" id="fRuntime" min="0" max="1440" autocomplete="off">
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="fGenres">Genres</label>
+              <input type="text" id="fGenres" maxlength="200" placeholder="Sci-Fi, Drama" autocomplete="off">
+            </div>
+            <div class="form-row">
+              <label for="fPoster">Poster URL</label>
+              <input type="text" id="fPoster" maxlength="500" autocomplete="off">
+              <p class="form-hint">Filled in from TMDB — paste any image URL if you'd rather use your own.</p>
+            </div>
+            <div class="form-row">
+              <label for="fUrl">Link</label>
+              <input type="text" id="fUrl" maxlength="300" autocomplete="off">
+              <p class="form-hint">Where the "View on Letterboxd" button points. Leave empty to hide the button.</p>
+            </div>
+            <div class="form-row">
+              <label for="fSynopsis">Synopsis</label>
+              <textarea id="fSynopsis" rows="4" maxlength="2000"></textarea>
+            </div>
+            <div class="form-row">
+              <label for="fBlurb">Our blurb</label>
+              <textarea id="fBlurb" rows="3" maxlength="1000" placeholder="Why come and see it with us"></textarea>
+            </div>
+            <div class="form-row">
+              <label for="fContent">Content notes</label>
+              <input type="text" id="fContent" maxlength="300" placeholder="Optional — e.g. Strong language" autocomplete="off">
+            </div>
+            <div class="form-row">
+              <label for="fId">Web address slug</label>
+              <input type="text" id="fId" maxlength="61" pattern="[a-z0-9][a-z0-9-]{0,60}" autocomplete="off" spellcheck="false">
+              <p class="form-hint">Used in the film page URL and to store reviews — locked while editing an existing film.</p>
+            </div>
+          </div>
+        </div>
+        <p class="form-error" id="formError" hidden></p>
+        <div class="form-actions">
+          <button type="submit" class="submit-btn" id="saveBtn">Save film</button>
+          <button type="button" class="mini-btn" id="cancelBtn" hidden>Cancel edit</button>
+          <span class="save-status" id="saveStatus" hidden></span>
+        </div>
+        <input type="hidden" id="fTmdb" value="0">
+      </form>
+    </div>
+  </main>
+
+  <footer class="site-footer">&copy; 2026 FilmSoc</footer>
+
+  <script src="script.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>

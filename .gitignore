@@ -1,4 +1,11 @@
 # Reviews are runtime data created by reviews.php on the server.
 reviews.json
 
+# The line-up data films.php writes when admins edit it from admin.html.
+films.json
+
+# Real secrets live here — copy config-sample.php to config.php instead
+# of committing your keys.
+config.php
+
 .DS_Store

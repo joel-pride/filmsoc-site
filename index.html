@@ -3,8 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FilmSoc — Weekly Screenings</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <title>Southampton Film Society — Weekly Screenings</title>
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="home">
@@ -21,7 +22,9 @@
 
   <nav class="drawer" id="sideDrawer" aria-label="Site navigation">
     <div class="drawer-head">
-      <a class="brand" href="index.html">Film<span>Soc</span></a>
+      <a class="brand" href="index.html" aria-label="Southampton Film Society — home">
+        <img class="brand-logo" src="images/logo.png" alt="" width="46" height="46">
+      </a>
       <button class="drawer-close" id="drawerClose" aria-label="Close menu">&times;</button>
     </div>
     <ul class="drawer-links">
@@ -33,10 +36,17 @@
     <div class="drawer-foot">
       <p>Films · Friends · Popcorn</p>
       <p class="drawer-foot-sub">Every Tuesday, 7pm</p>
+      <a class="drawer-admin-link" href="admin.html">Committee: manage the line-up</a>
     </div>
   </nav>
 
   <main class="home-main">
+    <header class="home-hero">
+      <img class="home-logo" src="images/logo.png" alt="Southampton Film Society logo" width="112" height="112">
+      <h1 class="home-title">Southampton Film Society</h1>
+      <p class="home-sub">Weekly screenings, chosen and voted for by our members — everyone welcome.</p>
+    </header>
+
     <section class="carousel" aria-roledescription="carousel" aria-label="Weekly film showings">
       <button class="arrow" id="prevBtn" aria-label="Show previous films">&#8249;</button>
 
@@ -49,6 +59,24 @@
 
     <p class="hint">Click a poster for details, reviews and screening info</p>
   </main>
+
+  <section class="home-info" aria-label="At a glance">
+    <h2>At a glance</h2>
+    <div class="info-grid">
+      <div class="info-card">
+        <h3>When</h3>
+        <p>Every Tuesday during term time. Doors open 7:00pm and the film starts at 7:15pm.</p>
+      </div>
+      <div class="info-card">
+        <h3>Where</h3>
+        <p>Avenue Lecture Theatre B. <a href="find-us.html">Directions and a map</a>.</p>
+      </div>
+      <div class="info-card">
+        <h3>What's on</h3>
+        <p>See everything screening this term on the <a href="films.html">films page</a>.</p>
+      </div>
+    </div>
+  </section>
 
   <script src="films.js"></script>
   <script src="script.js"></script>

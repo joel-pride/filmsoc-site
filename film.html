@@ -4,7 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Film — FilmSoc</title>
-  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
+  <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="film">
@@ -21,7 +22,9 @@
 
   <nav class="drawer" id="sideDrawer" aria-label="Site navigation">
     <div class="drawer-head">
-      <a class="brand" href="index.html">Film<span>Soc</span></a>
+      <a class="brand" href="index.html" aria-label="Southampton Film Society — home">
+        <img class="brand-logo" src="images/logo.png" alt="" width="46" height="46">
+      </a>
       <button class="drawer-close" id="drawerClose" aria-label="Close menu">&times;</button>
     </div>
     <ul class="drawer-links">
@@ -33,6 +36,7 @@
     <div class="drawer-foot">
       <p>Films · Friends · Popcorn</p>
       <p class="drawer-foot-sub">Every Tuesday, 7pm</p>
+      <a class="drawer-admin-link" href="admin.html">Committee: manage the line-up</a>
     </div>
   </nav>
 
@@ -69,17 +73,11 @@
       </div>
       <div class="form-row">
         <span class="form-label" id="ratingLabel">Your rating</span>
-        <div class="star-picker" role="group" aria-labelledby="ratingLabel">
-          <button type="button" class="star-btn" data-value="1" aria-label="Rate 1 star">★</button>
-          <button type="button" class="star-btn" data-value="2" aria-label="Rate 2 stars">★</button>
-          <button type="button" class="star-btn" data-value="3" aria-label="Rate 3 stars">★</button>
-          <button type="button" class="star-btn" data-value="4" aria-label="Rate 4 stars">★</button>
-          <button type="button" class="star-btn" data-value="5" aria-label="Rate 5 stars">★</button>
-        </div>
+        <div class="star-picker" role="group" aria-labelledby="ratingLabel"></div>
       </div>
       <div class="form-row">
         <label for="reviewText">Review</label>
-        <textarea id="reviewText" rows="4" maxlength="2000" placeholder="What did you think? (no spoilers, please)"></textarea>
+        <textarea id="reviewText" rows="4" maxlength="2000" placeholder="What did you think?"></textarea>
       </div>
       <p class="form-error" id="formError" hidden></p>
       <button type="submit" class="submit-btn" id="submitBtn">Post review</button>
@@ -101,6 +99,7 @@
         <div class="admin-controls" id="adminControls" hidden>
           <span class="admin-status" id="adminStatus"></span>
           <button type="button" class="admin-btn" id="adminOpenBtn"></button>
+          <a class="admin-link" href="admin.html">Manage line-up</a>
           <button type="button" class="admin-link" id="adminSignOut">Sign out</button>
         </div>
       </div>

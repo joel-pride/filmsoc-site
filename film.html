@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Film — FilmSoc</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎬</text></svg>">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body data-page="film">
+
+  <header class="topbar">
+    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-controls="sideDrawer" aria-expanded="false">
+      <span class="bar"></span>
+      <span class="bar"></span>
+      <span class="bar"></span>
+    </button>
+  </header>
+
+  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
+
+  <nav class="drawer" id="sideDrawer" aria-label="Site navigation">
+    <div class="drawer-head">
+      <a class="brand" href="index.html">Film<span>Soc</span></a>
+      <button class="drawer-close" id="drawerClose" aria-label="Close menu">&times;</button>
+    </div>
+    <ul class="drawer-links">
+      <li><a href="index.html" data-nav="home">Home</a></li>
+      <li><a href="about.html" data-nav="about">About Us</a></li>
+      <li><a href="films.html" data-nav="films">Films Showings</a></li>
+      <li><a href="find-us.html" data-nav="find-us">Where To Find Us</a></li>
+    </ul>
+    <div class="drawer-foot">
+      <p>Films · Friends · Popcorn</p>
+      <p class="drawer-foot-sub">Every Tuesday, 7pm</p>
+    </div>
+  </nav>
+
+  <main class="page film-page" id="filmPage">
+    <a class="back-link" href="films.html">&larr; All screenings</a>
+
+    <section class="film-hero">
+      <img id="filmPoster" class="film-poster" alt="">
+      <div class="film-head">
+        <h1 id="filmTitle"></h1>
+        <p class="film-facts" id="filmFacts"></p>
+        <div class="avg-block" id="avgBlock" hidden>
+          <span class="stars">★★★★★<span class="stars-fill" id="avgStarsFill">★★★★★</span></span>
+          <span class="avg-text" id="avgText"></span>
+        </div>
+        <p class="film-synopsis" id="filmSynopsis"></p>
+        <a id="lbLink" class="lb-button" target="_blank" rel="noopener">View on Letterboxd</a>
+      </div>
+    </section>
+
+    <h2>Our screening</h2>
+    <div class="info-card">
+      <h3 id="screeningWhen"></h3>
+      <p id="screeningWhere"></p>
+      <p id="screeningBlurb"></p>
+      <p id="screeningNotes" hidden></p>
+    </div>
+
+    <h2>Reviews</h2>
+    <form id="reviewForm" class="review-form" novalidate hidden>
+      <div class="form-row">
+        <label for="reviewName">Name</label>
+        <input type="text" id="reviewName" maxlength="50" placeholder="Optional — we'll call you Anonymous" autocomplete="off">
+      </div>
+      <div class="form-row">
+        <span class="form-label" id="ratingLabel">Your rating</span>
+        <div class="star-picker" role="group" aria-labelledby="ratingLabel">
+          <button type="button" class="star-btn" data-value="1" aria-label="Rate 1 star">★</button>
+          <button type="button" class="star-btn" data-value="2" aria-label="Rate 2 stars">★</button>
+          <button type="button" class="star-btn" data-value="3" aria-label="Rate 3 stars">★</button>
+          <button type="button" class="star-btn" data-value="4" aria-label="Rate 4 stars">★</button>
+          <button type="button" class="star-btn" data-value="5" aria-label="Rate 5 stars">★</button>
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="reviewText">Review</label>
+        <textarea id="reviewText" rows="4" maxlength="2000" placeholder="What did you think? (no spoilers, please)"></textarea>
+      </div>
+      <p class="form-error" id="formError" hidden></p>
+      <button type="submit" class="submit-btn" id="submitBtn">Post review</button>
+    </form>
+
+    <p class="reviews-note" id="reviewsNote" hidden></p>
+    <ul class="reviews-list" id="reviewsList"></ul>
+    <p class="no-reviews" id="noReviews" hidden>No reviews yet — be the first!</p>
+
+    <div class="admin-area" id="adminArea">
+      <button type="button" class="admin-toggle" id="adminToggleBtn">Admin</button>
+      <div class="admin-panel" id="adminPanel" hidden>
+        <p class="admin-hint">Committee only — open/close reviews for this film and moderate what's been posted.</p>
+        <div class="admin-login" id="adminLogin">
+          <input type="password" id="adminKeyInput" placeholder="Admin key" aria-label="Admin key" autocomplete="off">
+          <button type="button" class="admin-btn" id="adminSignIn">Sign in</button>
+        </div>
+        <p class="admin-error" id="adminError" hidden></p>
+        <div class="admin-controls" id="adminControls" hidden>
+          <span class="admin-status" id="adminStatus"></span>
+          <button type="button" class="admin-btn" id="adminOpenBtn"></button>
+          <button type="button" class="admin-link" id="adminSignOut">Sign out</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="site-footer">&copy; 2026 FilmSoc</footer>
+
+  <script src="films.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

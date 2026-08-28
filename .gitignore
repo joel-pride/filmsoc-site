@@ -1,0 +1,4 @@
+# Reviews are runtime data created by reviews.php on the server.
+reviews.json
+
+.DS_Store

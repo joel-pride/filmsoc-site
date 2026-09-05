@@ -56,7 +56,8 @@ function persist_films(array $films): bool {
         . "// edits would be overwritten on the next save); use admin.html instead.\n"
         . "//\n"
         . "// Each entry: id (slug used in film.html?id=... URLs and to key stored\n"
-        . "// reviews), poster (local path or URL), date (ISO screening date),\n"
+        . "// reviews), poster (local path or URL), backdrop (optional wide banner\n"
+        . "// URL for the film page header), date (ISO screening date),\n"
         . "// url (the film's Letterboxd page) plus detail-page fields (director,\n"
         . "// runtime, genres, synopsis, blurb, content).\n"
         . 'const FILMS = ';
@@ -116,6 +117,10 @@ function tmdb_poster(?string $path): string {
     return $path !== null && $path !== '' ? 'https://image.tmdb.org/t/p/w500' . $path : '';
 }
 
+function tmdb_backdrop(?string $path): string {
+    return $path !== null && $path !== '' ? 'https://image.tmdb.org/t/p/w1280' . $path : '';
+}
+
 function tmdb_year(?string $release_date): ?int {
     if ($release_date !== null && preg_match('/^\d{4}/', $release_date, $m) === 1) return (int) $m[0];
     return null;
@@ -159,6 +164,9 @@ function clean_film(array $f): array {
     if ($poster === '') $poster = 'images/placeholder.svg';
     if (mb_strlen($poster) > 500) respond(422, ['error' => 'The poster URL is too long.']);
 
+    $backdrop = trim((string) ($f['backdrop'] ?? ''));
+    if (mb_strlen($backdrop) > 500) respond(422, ['error' => 'The backdrop URL is too long.']);
+
     $url = trim((string) ($f['url'] ?? ''));
     if ($url !== '' && (mb_strlen($url) > 300 || preg_match('#^https?://#i', $url) !== 1)) {
         respond(422, ['error' => 'The link must start with http:// or https:// (or be left empty).']);
@@ -173,6 +181,7 @@ function clean_film(array $f): array {
         'year'     => $year,
         'date'     => $date,
         'poster'   => $poster,
+        'backdrop' => $backdrop,
         'url'      => $url,
         'director' => $clip('director', 200),
         'runtime'  => $runtime,
@@ -244,6 +253,7 @@ if ($action === 'details') {
         ))),
         'synopsis' => trim((string) ($data['overview'] ?? '')),
         'poster'   => tmdb_poster($data['poster_path'] ?? null),
+        'backdrop' => tmdb_backdrop($data['backdrop_path'] ?? null),
     ]);
 }
 

@@ -3,7 +3,8 @@
 // edits would be overwritten on the next save); use admin.html instead.
 //
 // Each entry: id (slug used in film.html?id=... URLs and to key stored
-// reviews), poster (local path or URL), date (ISO screening date),
+// reviews), poster (local path or URL), backdrop (optional wide banner
+// URL for the film page header), date (ISO screening date),
 // url (the film's Letterboxd page) plus detail-page fields (director,
 // runtime, genres, synopsis, blurb, content).
 const FILMS = [
@@ -22,7 +23,8 @@ const FILMS = [
         ],
         "synopsis": "The aging patriarch of an organised-crime dynasty transfers control of his clandestine empire to his reluctant youngest son.",
         "blurb": "We open the season with the greatest of them all. Come for Brando, stay for the coffee.",
-        "content": "Strong violence"
+        "content": "Strong violence",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/ejdD20cdHNFAYAN2DlqPToXKyzx.jpg"
     },
     {
         "id": "spirited-away",
@@ -40,7 +42,8 @@ const FILMS = [
         ],
         "synopsis": "A sullen ten-year-old girl wanders into a world ruled by gods, witches and spirits, where humans are changed into beasts.",
         "blurb": "Animation night! Miyazaki's Oscar-winner on the big screen — bring a friend who hasn't seen it.",
-        "content": "Family friendly"
+        "content": "Family friendly",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/dyJvKsNs2KP8qQnAXbRwDjblViy.jpg"
     },
     {
         "id": "interstellar",
@@ -57,7 +60,8 @@ const FILMS = [
             "Drama"
         ],
         "synopsis": "With Earth's resources failing, a former pilot leads a team of researchers through a newly discovered wormhole in search of a habitable planet.",
-        "blurb": "Nolan's space epic with the loudest organ in cinema. Best enjoyed big and loud."
+        "blurb": "Nolan's space epic with the loudest organ in cinema. Best enjoyed big and loud.",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg"
     },
     {
         "id": "whiplash-2014",
@@ -74,7 +78,8 @@ const FILMS = [
         ],
         "synopsis": "A promising young drummer enrolls at a cut-throat music conservatory, where his dreams of greatness are mentored by an instructor who will stop at nothing to realise a student's potential.",
         "blurb": "Not quite my tempo. Two knockout performances and a final scene you'll be talking about all the way home.",
-        "content": "Strong language"
+        "content": "Strong language",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/wbQa0EnWUyRzQ5d1pHLNRlmsCUP.jpg"
     },
     {
         "id": "blade-runner-2049",
@@ -91,7 +96,8 @@ const FILMS = [
         ],
         "synopsis": "A new blade runner, LAPD Officer K, unearths a long-buried secret that has the potential to plunge what's left of society into chaos.",
         "blurb": "Neon, rain and Roger Deakins' Oscar-winning cinematography — modern sci-fi built for the big screen.",
-        "content": "Violence, nudity"
+        "content": "Violence, nudity",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/gNdLJU9TxrpGx4dkZidjys3fyy0.jpg"
     },
     {
         "id": "la-la-land",
@@ -108,7 +114,8 @@ const FILMS = [
             "Drama"
         ],
         "synopsis": "An aspiring actress and a dedicated jazz musician struggle to make ends meet while pursuing their dreams in a city known for destroying hopes and breaking hearts.",
-        "blurb": "Musicals night — sing along at your own risk. Here's to the ones who dream."
+        "blurb": "Musicals night — sing along at your own risk. Here's to the ones who dream.",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/nlPCdZlHtRNcF6C9hzUH4ebmV1w.jpg"
     },
     {
         "id": "inception",
@@ -126,7 +133,8 @@ const FILMS = [
         ],
         "synopsis": "A thief who steals corporate secrets through dream-sharing technology is given the inverse task of planting an idea into the mind of a C.E.O.",
         "blurb": "A heist inside the mind. Bring your own spinning top.",
-        "content": "Violence"
+        "content": "Violence",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/8ZTVqvKDQ8emSGUEMjsS4yHAwrp.jpg"
     },
     {
         "id": "parasite",
@@ -134,6 +142,7 @@ const FILMS = [
         "year": 2019,
         "date": "2026-10-15",
         "poster": "https://image.tmdb.org/t/p/w500/7IiTTgloJzvGI1TAYymCfbfl3vT.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/TU9NIjwzjoKPwQHoHshkFcQUCG.jpg",
         "url": "https://letterboxd.com/film/parasite-2019/",
         "director": "Bong Joon Ho",
         "runtime": 133,
@@ -164,7 +173,8 @@ const FILMS = [
         "synopsis": "A committed dancer struggles to maintain her sanity after winning the lead role in a production of Tchaikovsky's \"Swan Lake.\"",
         "blurb": "Its cray",
         "content": "Strong Language, Sexual Themes",
-        "tmdb": 44214
+        "tmdb": 44214,
+        "backdrop": "https://image.tmdb.org/t/p/w1280/eDLp4uFdqP1gpy9oMrutwH6Q64I.jpg"
     },
     {
         "id": "10-things-i-hate-about-you",
@@ -183,6 +193,7 @@ const FILMS = [
         "synopsis": "On the first day at his new school, Cameron instantly falls for Bianca, the gorgeous girl of his dreams. The only problem is that Bianca is forbidden to date until her ill-tempered, completely un-dateable older sister Kat goes out, too. In an attempt to solve his problem, Cameron singles out the only guy who could possibly be a match for Kat: a mysterious bad boy with a nasty reputation of his own.",
         "blurb": "edina loves this movie",
         "content": "Strong Language",
-        "tmdb": 4951
+        "tmdb": 4951,
+        "backdrop": "https://image.tmdb.org/t/p/w1280/yvPbncYhMu9FfTjDhq0N5lgnVkO.jpg"
     }
 ];

@@ -5,8 +5,12 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex">
   <title>Manage the line-up — FilmSoc</title>
+  <meta name="theme-color" content="#16181d">
   <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="admin">
@@ -31,7 +35,7 @@
     <ul class="drawer-links">
       <li><a href="index.html" data-nav="home">Home</a></li>
       <li><a href="about.html" data-nav="about">About Us</a></li>
-      <li><a href="films.html" data-nav="films">Films Showings</a></li>
+      <li><a href="films.html" data-nav="films">What's On</a></li>
       <li><a href="find-us.html" data-nav="find-us">Where To Find Us</a></li>
     </ul>
     <div class="drawer-foot">
@@ -105,6 +109,11 @@
               <label for="fPoster">Poster URL</label>
               <input type="text" id="fPoster" maxlength="500" autocomplete="off">
               <p class="form-hint">Filled in from TMDB — paste any image URL if you'd rather use your own.</p>
+            </div>
+            <div class="form-row">
+              <label for="fBackdrop">Backdrop URL</label>
+              <input type="text" id="fBackdrop" maxlength="500" autocomplete="off">
+              <p class="form-hint">Optional wide image shown behind the film page header — filled in from TMDB automatically.</p>
             </div>
             <div class="form-row">
               <label for="fUrl">Link</label>

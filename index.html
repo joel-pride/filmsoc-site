@@ -4,8 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Southampton Film Society — Weekly Screenings</title>
+  <meta name="theme-color" content="#16181d">
+  <meta property="og:site_name" content="Southampton Film Society">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Southampton Film Society — Weekly Screenings">
+  <meta property="og:description" content="Weekly screenings, chosen and voted for by our members — everyone welcome. Every Tuesday, 7pm, Avenue Lecture Theatre B.">
+  <meta property="og:image" content="images/logo.png">
   <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="home">
@@ -30,7 +39,7 @@
     <ul class="drawer-links">
       <li><a href="index.html" data-nav="home">Home</a></li>
       <li><a href="about.html" data-nav="about">About Us</a></li>
-      <li><a href="films.html" data-nav="films">Films Showings</a></li>
+      <li><a href="films.html" data-nav="films">What's On</a></li>
       <li><a href="find-us.html" data-nav="find-us">Where To Find Us</a></li>
     </ul>
     <div class="drawer-foot">
@@ -45,16 +54,21 @@
       <img class="home-logo" src="images/logo.png" alt="Southampton Film Society logo" width="112" height="112">
       <h1 class="home-title">Southampton Film Society</h1>
       <p class="home-sub">Weekly screenings, chosen and voted for by our members — everyone welcome.</p>
+      <p class="next-screening" id="nextScreening" hidden></p>
     </header>
 
     <section class="carousel" aria-roledescription="carousel" aria-label="Weekly film showings">
-      <button class="arrow" id="prevBtn" aria-label="Show previous films">&#8249;</button>
+      <button class="arrow" id="prevBtn" aria-label="Show previous films">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"/></svg>
+      </button>
 
       <div class="stage">
         <div class="track" id="track"></div>
       </div>
 
-      <button class="arrow" id="nextBtn" aria-label="Show next films">&#8250;</button>
+      <button class="arrow" id="nextBtn" aria-label="Show next films">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"/></svg>
+      </button>
     </section>
 
     <p class="hint">Click a poster for details, reviews and screening info</p>

@@ -1,0 +1,11 @@
+# Replace yourdomain.example with the domain you registered (both lines),
+# then on the server: docker compose restart caddy.
+filmsoc.yourdomain.example {
+	reverse_proxy filmsoc:80
+}
+
+# Future projects: one block per subdomain, e.g.
+#
+# project2.yourdomain.example {
+# 	reverse_proxy project2:3000
+# }

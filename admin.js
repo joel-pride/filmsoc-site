@@ -33,6 +33,7 @@ const fields = {
   year: $("fYear"),
   date: $("fDate"),
   poster: $("fPoster"),
+  backdrop: $("fBackdrop"),
   url: $("fUrl"),
   director: $("fDirector"),
   runtime: $("fRuntime"),
@@ -309,6 +310,7 @@ function fillForm(film) {
   fields.year.value = film.year || "";
   fields.date.value = film.date || "";
   fields.poster.value = film.poster || "";
+  fields.backdrop.value = film.backdrop || "";
   fields.url.value = film.url || "";
   fields.director.value = film.director || "";
   fields.runtime.value = film.runtime || "";
@@ -394,6 +396,7 @@ function collectFilm() {
     year: parseInt(fields.year.value, 10) || 0,
     date: fields.date.value,
     poster: fields.poster.value.trim(),
+    backdrop: fields.backdrop.value.trim(),
     url: fields.url.value.trim(),
     director: fields.director.value.trim(),
     runtime: parseInt(fields.runtime.value, 10) || 0,

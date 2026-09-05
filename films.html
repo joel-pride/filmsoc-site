@@ -3,9 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Films Showings — FilmSoc</title>
+  <title>What's On — FilmSoc</title>
+  <meta name="theme-color" content="#16181d">
+  <meta property="og:site_name" content="Southampton Film Society">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="What's On — Southampton Film Society">
+  <meta property="og:description" content="This term's line-up — one film every Tuesday at Avenue Lecture Theatre B.">
+  <meta property="og:image" content="images/logo.png">
   <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Tinos:wght@400;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="styles.css">
 </head>
 <body data-page="films">
@@ -30,7 +39,7 @@
     <ul class="drawer-links">
       <li><a href="index.html" data-nav="home">Home</a></li>
       <li><a href="about.html" data-nav="about">About Us</a></li>
-      <li><a href="films.html" data-nav="films">Films Showings</a></li>
+      <li><a href="films.html" data-nav="films">What's On</a></li>
       <li><a href="find-us.html" data-nav="find-us">Where To Find Us</a></li>
     </ul>
     <div class="drawer-foot">
@@ -41,11 +50,11 @@
   </nav>
 
   <main class="page">
-    <h1>Films Showings</h1>
-    <p class="lede">One film every week. Click a film for details, reviews and screening info.</p>
+    <h1>What's On</h1>
+    <p class="lede">One film every week. Click a poster for details, reviews and screening info.</p>
 
     <h2>This term's line-up</h2>
-    <ul class="programme" id="programme"></ul>
+    <ul class="film-grid" id="programme"></ul>
   </main>
 
   <footer class="site-footer">&copy; 2026 FilmSoc</footer>

@@ -1,6 +1,6 @@
 // Shared behaviour for every page: side drawer, home carousel, programme
 // list and the per-film detail page. The line-up itself lives in films.js
-// (loaded just before this file).
+// (loaded just before this file)
 
 const films = typeof FILMS === "undefined" ? [] : FILMS;
 
@@ -186,9 +186,9 @@ if (trackEl) {
   requestAnimationFrame(() => requestAnimationFrame(() => trackEl.classList.remove("no-transition")));
 }
 
-/* ── Programme list (films page) ─────────────────────── */
+/* ── Poster grid (films page) ────────────────────────── */
 
-// The list is generated from the same data as the carousel, so there's a
+// Cards are generated from the same data as the carousel, so there's a
 // single source of truth for the line-up. Status chips are derived from
 // each film's screening date.
 const programmeList = document.getElementById("programme");
@@ -209,34 +209,66 @@ if (programmeList) {
   films.forEach((film) => {
     const li = document.createElement("li");
 
-    const thumb = document.createElement("a");
-    thumb.className = "poster-thumb";
-    thumb.href = filmPageUrl(film);
-    thumb.setAttribute("aria-label", `${film.title} — details and reviews`);
+    const link = document.createElement("a");
+    link.className = "film-card-link";
+    link.href = filmPageUrl(film);
+    link.setAttribute("aria-label", `View ${film.title} (${film.year}) — details and reviews`);
+
     const img = document.createElement("img");
+    img.className = "film-card-poster";
     img.src = film.poster;
     img.alt = `${film.title} poster`;
     img.decoding = "async";
-    thumb.appendChild(img);
+    img.loading = "lazy";
 
+    const body = document.createElement("span");
+    body.className = "film-card-body";
+    const title = document.createElement("span");
+    title.className = "film-card-title";
+    title.textContent = film.title;
     const meta = document.createElement("span");
-    meta.className = "film-meta";
-    const title = document.createElement("a");
-    title.href = filmPageUrl(film);
-    title.textContent = `${film.title} (${film.year})`;
-    const dateEl = document.createElement("span");
-    dateEl.className = "film-date";
-    dateEl.textContent = `${formatDate(parseISO(film.date))} · 7pm`;
-    meta.append(title, dateEl);
+    meta.className = "film-card-meta";
+    meta.textContent = `${film.year} · ${formatDate(parseISO(film.date))} · 7pm`;
 
     const chip = document.createElement("span");
     const c = chipFor(film.date);
     chip.className = c.dim ? "chip dim" : "chip";
     chip.textContent = c.label;
 
-    li.append(thumb, meta, chip);
+    body.append(title, meta, chip);
+    link.append(img, body);
+    li.appendChild(link);
     programmeList.appendChild(li);
   });
+}
+
+/* ── Next screening callout (home page) ──────────────── */
+
+const nextScreening = document.getElementById("nextScreening");
+
+if (nextScreening) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const upcoming = films.filter((f) => parseISO(f.date) >= today);
+  const next = upcoming.length
+    ? upcoming.reduce((a, b) => (parseISO(a.date) <= parseISO(b.date) ? a : b))
+    : null;
+
+  if (next) {
+    const tonight = parseISO(next.date).getTime() === today.getTime();
+    const label = document.createElement("span");
+    label.className = "next-label";
+    label.textContent = tonight ? "Tonight" : "Next screening";
+    const title = document.createElement("a");
+    title.href = filmPageUrl(next);
+    title.textContent = next.title;
+    const when = document.createElement("span");
+    when.textContent = tonight
+      ? "· doors 7:00pm, film 7:15pm"
+      : `· ${formatDate(parseISO(next.date))} · doors 7:00pm`;
+    nextScreening.append(label, title, when);
+    nextScreening.hidden = false;
+  }
 }
 
 /* ── Film detail page (film.html) ────────────────────── */
@@ -264,6 +296,21 @@ if (filmPage) {
 
 function populateFilmPage(film) {
   document.title = `${film.title} (${film.year}) — FilmSoc`;
+
+  // Wide backdrop behind the hero; without one stored, the poster doubles
+  // as the backdrop (blurred and zoomed via CSS).
+  const backdropWrap = document.getElementById("backdropWrap");
+  const backdropImg = document.getElementById("filmBackdrop");
+  if (backdropWrap && backdropImg) {
+    if (film.backdrop) {
+      backdropImg.src = film.backdrop;
+      backdropWrap.hidden = false;
+    } else if (film.poster) {
+      backdropImg.src = film.poster;
+      backdropImg.classList.add("is-poster");
+      backdropWrap.hidden = false;
+    }
+  }
 
   const poster = document.getElementById("filmPoster");
   poster.src = film.poster;

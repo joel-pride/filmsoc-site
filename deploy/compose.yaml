@@ -1,0 +1,33 @@
+# The whole server in one file: Caddy is the HTTPS front door that routes
+# each subdomain to a project; filmsoc is the first project. A future
+# project = a new service here + a block in the Caddyfile + a DNS record.
+services:
+  caddy:
+    image: caddy:2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"   # HTTP/3
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data      # TLS certificates — survives restarts/rebuilds
+      - caddy-config:/config
+    depends_on:
+      - filmsoc
+
+  filmsoc:
+    build:
+      context: .
+      dockerfile: filmsoc.Dockerfile
+    restart: unless-stopped
+    # The site lives on the host, not inside the container, so reviews and
+    # the line-up (films.json / films.js / reviews.json, written by the
+    # admin panel) survive rebuilds and are easy to back up.
+    volumes:
+      - ./filmsoc:/var/www/html
+    mem_limit: 256m
+
+volumes:
+  caddy-data:
+  caddy-config:

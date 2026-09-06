@@ -51,30 +51,28 @@
   </nav>
 
   <main class="page">
-    <h1>Bingo Night</h1>
+    <h1>Bingo</h1>
     <p class="lede">A one-off special: generate your sheet, then find a member for every square.</p>
 
     <section class="bingo-intro" id="bingoIntro" aria-label="How bingo night works">
       <p>
         Cross off a square once you've found someone who fits it — compare top 4s, favourite
-        actors and cinema habits until every box has a name in it. First to a line of three
-        shouts bingo!
+        actors and cinema habits until every box has a name in it. First to a full house —
+        all nine squares — wins!
       </p>
-      <p class="bingo-fair">
-        Your sheet is saved on this device, so refreshing won't hand you a new one — no re-rolling.
-      </p>
+
       <button class="bingo-generate" id="generateBtn" type="button">Generate bingo sheet</button>
     </section>
 
     <section class="bingo-board" id="bingoBoard" hidden aria-label="Your bingo sheet">
       <div class="bingo-grid" id="bingoGrid"></div>
-      <p class="bingo-win" id="bingoWin" hidden>Bingo!</p>
-      <p class="bingo-hint">Tap a square to cross it off — three in a line wins.</p>
+      <p class="bingo-win" id="bingoWin" hidden>Full house!</p>
+      <p class="bingo-hint">Tap a square to cross it off — fill all nine for a full house.</p>
       <button class="mini-btn bingo-reset" id="resetBtn" type="button">Start a new sheet</button>
     </section>
   </main>
 
-  <footer class="site-footer">&copy; 2026 FilmSoc</footer>
+  <footer class="site-footer"></footer>
 
   <script src="films.js"></script>
   <script src="script.js"></script>

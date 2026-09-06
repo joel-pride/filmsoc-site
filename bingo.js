@@ -7,36 +7,33 @@ const BINGO_STORAGE_KEY = "filmsocBingoSheet";
 // Saved sheets store indexes into this list, so it must stay append-only:
 // adding new squares is fine, but removing or reordering breaks old sheets.
 const BINGO_SQUARES = [
-  "with the same favourite actor as you",
-  "with the same favourite director as you",
-  "with the same film in their top 4",
-  "who hates a film in your top 4",
-  "who has never seen a film in your top 4",
-  "who has seen more than 150 films this year",
-  "with a Nolan film in their top 4",
-  "with a 2020s film in their top 4",
-  "with a film from before 1980 in their top 4",
-  "with an animated film in their top 4",
-  "who has rated a film under 3★ average a full 5★",
-  "who has seen every Star Wars film",
-  "who has seen a film in 70mm IMAX",
-  "with an A24 film in their top 4",
-  "with a Best Picture winner in their top 4",
-  "with a non-English language film in their top 4",
-  "whose favourite actor has never won an Oscar",
-  "whose favourite director has never won an Oscar",
-  "who has never seen a Marvel film",
-  "who can name 5 Best Picture winners",
-  "who has been to the cinema more than 10 times this year",
-  "whose favourite genre is horror",
+  "Same favourite actor as you",
+  "Same favourite director as you",
+  "Same film in their top 4",
+  "Hates a film in your top 4",
+  "Never seen a film in your top 4",
+  "Seen more than 150 films this year",
+  "Nolan film in their top 4",
+  "2020s film in their top 4",
+  "Film from before 1980 in their top 4",
+  "Animated film in their top 4",
+  "Seen every Star Wars film",
+  "Seen a film in 70mm IMAX",
+  "A24 film in their top 4",
+  "Best Picture winner in their top 4",
+  "Non-English language film in their top 4",
+  "Favourite actor has never won an Oscar",
+  "Favourite director has never won an Oscar",
+  "Never seen a Marvel film",
+  "Name 5 Best Picture winners",
+  "Been to the cinema more than 10 times this year",
+  "Favourite genre is horror",
 ];
 
-// Every way to complete a line on a 3×3 grid.
-const BINGO_LINES = [
-  [0, 1, 2], [3, 4, 5], [6, 7, 8],
-  [0, 3, 6], [1, 4, 7], [2, 5, 8],
-  [0, 4, 8], [2, 4, 6],
-];
+// Bingo is a full house: every square on the sheet crossed off.
+function isFullHouse(marks) {
+  return marks.every(Boolean);
+}
 
 const bingoIntro = document.getElementById("bingoIntro");
 const bingoBoard = document.getElementById("bingoBoard");
@@ -72,16 +69,10 @@ function generateCells() {
   return pool.slice(0, 9);
 }
 
-function winningLines(marks) {
-  return BINGO_LINES.filter((line) => line.every((i) => marks[i]));
-}
-
 function paintWins(sheet) {
-  const cells = [...bingoGrid.children];
-  cells.forEach((cell) => cell.classList.remove("win"));
-  const wins = winningLines(sheet.marks);
-  wins.forEach((line) => line.forEach((i) => cells[i].classList.add("win")));
-  bingoWin.hidden = wins.length === 0;
+  const won = isFullHouse(sheet.marks);
+  [...bingoGrid.children].forEach((cell) => cell.classList.toggle("win", won));
+  bingoWin.hidden = !won;
 }
 
 function renderSheet(sheet) {

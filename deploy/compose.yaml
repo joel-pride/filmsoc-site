@@ -26,6 +26,11 @@ services:
     # admin panel) survive rebuilds and are easy to back up.
     volumes:
       - ./filmsoc:/var/www/html
+    environment:
+      # "true" while the site is in development: every visitor must enter
+      # the gate password (GATE_PASSWORD in filmsoc/config.php) first.
+      # Launch day: set to "false" and run `docker compose up -d`.
+      GATE_ENABLED: "true"
     mem_limit: 256m
 
 volumes:

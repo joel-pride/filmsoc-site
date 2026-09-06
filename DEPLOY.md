@@ -87,32 +87,165 @@ docker compose up -d --build
 docker compose logs -f caddy   # watch "certificate obtained" — Ctrl-C to exit
 ```
 
-Then open `https://filmsoc.yourdomain` — the site should be there, with a
-padlock. Check a film page and the admin panel (sign-in now uses your new
-strong key).
+Then open `https://filmsoc.yourdomain` — you should land on the password
+gate (see §6); type the `GATE_PASSWORD` from `config.php` and you're
+through to the site, with a padlock. Check a film page and the admin panel
+(sign-in now uses your new strong key).
 
 ## 5. Updating the site later
 
-The server *edits* `films.json`, `films.js` and `reviews.json` when you use
-the admin panel, so never blindly re-upload those. The safe pattern after
-changing code locally is:
+Everything here runs **on the Mac**, from the repo folder — rsync connects
+to the server itself, and the one command that must run on the VM (the
+rebuild) is wrapped in `ssh` below. Shell variables don't survive a new
+terminal window, so start every session with:
 
 ```bash
-rsync -av --exclude .git --exclude .idea --exclude .DS_Store \
+cd ~/Documents/joel_projects/filmsoc-site
+VM=9.205.17.16        # the VM's public IP (Azure portal → VM → Overview)
+KEY=~/.ssh/web-vm.pem
+```
+
+There are two kinds of change, with different procedures:
+
+- **Site content** — HTML/CSS/JS/PHP pages, images. The site folder is
+  bind-mounted into the container, so an rsync makes these live
+  instantly. No rebuild, no restart needed.
+- **Deploy files** — anything in `deploy/` (Dockerfile, compose.yaml,
+  gate template/entrypoint, Caddyfile). These are baked into the image,
+  so they need the second rsync **plus** a rebuild (step 3).
+
+### Step 1 — back up the server's live data
+
+The admin panel and reviews.php write `films.json`, `films.js` and
+`reviews.json` *on the server* — those copies are the live ones, and step
+2's excludes exist to protect them. Snapshot them before anything that
+could touch them:
+
+```bash
+rsync -av -e "ssh -i $KEY" "azureuser@$VM:/srv/web/filmsoc/*.json" ./server-backup/   # quotes stop zsh expanding the * locally
+rsync -av -e "ssh -i $KEY" azureuser@$VM:/srv/web/filmsoc/films.js ./server-backup/
+```
+
+### Step 2 — upload the site (every content change)
+
+```bash
+rsync -av --delete \
+  --exclude .git --exclude .idea --exclude .DS_Store --exclude server-backup \
   --exclude films.json --exclude films.js --exclude reviews.json \
+  --exclude .gate-token \
+  --exclude deploy --exclude DEPLOY.md \
   -e "ssh -i $KEY" ./ azureuser@$VM:/srv/web/filmsoc/
 ```
 
-Containers don't need restarting for PHP/HTML changes — the folder is
-bind-mounted, so new files are served immediately.
+What the excludes protect:
 
-## 6. Backups
+- `films.json` / `films.js` / `reviews.json` — server-owned data. **Change
+  the line-up through admin.html, never by hand-editing these locally**:
+  films.php regenerates them on every admin save and would overwrite hand
+  edits. If you ever must push a local copy, do it as a deliberate
+  one-file upload (`rsync -av -e "ssh -i $KEY" ./films.js azureuser@$VM:/srv/web/filmsoc/`)
+  after step 1's backup.
+- `.gate-token` — the gate's cookie secret; replacing it logs every
+  visitor out.
+- `deploy/` and `DEPLOY.md` — server internals, not web pages. Uploading
+  them publishes them at `https://…/deploy/…` to anyone past the gate
+  (this actually happened on 6 Sep 2026 — if those URLs ever work again,
+  `ssh -i $KEY azureuser@$VM "rm -rf /srv/web/filmsoc/deploy /srv/web/filmsoc/DEPLOY.md"`).
+- `config.php` is *not* excluded on purpose: it rides along, which is how
+  ADMIN_KEY / GATE_PASSWORD changes roll out (effective immediately).
+
+`--delete` makes the server an exact mirror of the repo: pages removed or
+renamed locally disappear on the server too. Excluded files are never
+deleted by it. Add `-n` (dry run) first if you want a preview of what
+would be sent and deleted.
+
+### Step 3 — upload deploy files and rebuild (only if you touched deploy/)
+
+**Exclude Caddyfile** — the server's copy has your real domain in it; the
+repo copy is just the template:
+
+```bash
+rsync -av --exclude Caddyfile -e "ssh -i $KEY" deploy/ azureuser@$VM:/srv/web/
+ssh -i $KEY azureuser@$VM "cd /srv/web && docker compose up -d --build"
+```
+
+How to know it worked: the `COPY …` build steps run fresh (not `CACHED`)
+and compose reports `Container web-filmsoc-1 Recreated` (not `Running`).
+If everything says `CACHED` and the container's status is still "Up N
+days", nothing changed — usually step 3's rsync was skipped or the files
+never differed.
+
+### Step 4 — check the live site
+
+The vhost serves `.css`/`.js`/`.html` with `Cache-Control: no-cache`, so
+an ordinary reload always revalidates and picks up deploys. If a page
+still looks old, don't redeploy — first check whether the *server* is new
+and only your browser is stale:
+
+```bash
+JAR=$(mktemp)
+curl -s -c "$JAR" -o /dev/null -d "password=THE_GATE_PASSWORD" 'https://filmsoc.jbps.app/gate.php?to=/'
+curl -s -b "$JAR" https://filmsoc.jbps.app/styles.css | shasum   # compare: shasum styles.css
+```
+
+Matching checksums → it's your browser: hard-refresh once (Cmd+Shift+R)
+and move on. (Only files cached before 6 Sep 2026 — before the no-cache
+header existed — can ever be stale.) Mismatched → re-run step 2 and read
+rsync's output: it lists exactly which files transferred.
+
+### Update troubleshooting
+
+- **zsh: no matches found** — an unquoted `*` in a remote path; zsh tries
+  to expand it locally. Quote the whole `azureuser@…` path.
+- **rsync succeeded but the site looks unchanged** — do step 4 before
+  anything else; nine times out of ten the server is fine and the browser
+  cache is lying.
+- **Build all CACHED / container "Up N days"** — the deploy files never
+  changed on the server; check you actually ran step 3's first command.
+- **Bounced back to the gate after a rebuild** — `docker compose restart
+  filmsoc` re-syncs the token with Apache (details in §6).
+- **Line-up edits vanished after an upload** — films.php rewrites
+  films.json/films.js from the admin panel's saves; restore from
+  ./server-backup/ and use admin.html next time.
+
+## 6. The password gate (while the site is in development)
+
+Until the site is ready to launch, every visitor first hits a dark
+"Coming soon" page (`gate.php`) that matches the site's look and asks for
+a password. Share that password with whoever should get a peek.
+
+- **The password** is `GATE_PASSWORD` in `config.php`. Change it locally
+  and upload with step 5's rsync — new logins use it immediately, though
+  people already in stay in (their cookie is checked against a server
+  secret, not the password).
+- **Staying logged in** is a cookie that lasts 30 days.
+- **Kicking everyone out** (password leaked, or you just want a clean
+  slate) — regenerate the secret, which invalidates every cookie out
+  there:
+
+  ```bash
+  rm /srv/web/filmsoc/.gate-token && docker compose restart filmsoc
+  ```
+
+- **On launch day**: set `GATE_ENABLED: "false"` in `/srv/web/compose.yaml`
+  and run `docker compose up -d` on the server. The gate rules vanish and
+  `gate.php` itself just forwards to the home page — nothing to un-deploy.
+
+The gate is enforced by Apache inside the filmsoc container (rendered from
+`deploy/apache-site-template.conf` by `deploy/gate-entrypoint.sh` on every
+container start), so it covers every page, image and endpoint — not just
+the HTML. If logging in ever loops straight back to the gate, `docker
+compose restart filmsoc` re-syncs things; check `docker compose logs
+filmsoc` if it doesn't.
+
+## 7. Backups
 
 The only irreplaceable data is `filmsoc/reviews.json` (and films.json if
 you edit the line-up on the server). Occasionally, from your Mac:
 
 ```bash
-rsync -av -e "ssh -i $KEY" azureuser@$VM:/srv/web/filmsoc/*.json ./server-backup/
+rsync -av -e "ssh -i $KEY" "azureuser@$VM:/srv/web/filmsoc/*.json" ./server-backup/   # quotes stop zsh expanding the * locally
+rsync -av -e "ssh -i $KEY" azureuser@$VM:/srv/web/filmsoc/films.js ./server-backup/
 ```
 
 Or snapshot the VM's disk from the Azure portal (Settings → Disks →

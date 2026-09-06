@@ -66,6 +66,11 @@ a { color: var(--accent-bright); }
   z-index: 40;
   pointer-events: none;
   transition: opacity 0.25s ease;
+  /* Fades scrolling content out before it can run under the hamburger. */
+  background: linear-gradient(to bottom,
+    rgba(22, 24, 29, 0.94),
+    rgba(22, 24, 29, 0.6) 62%,
+    transparent);
 }
 
 body.drawer-open .topbar { opacity: 0; pointer-events: none; }
@@ -79,10 +84,27 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
   justify-content: center;
   align-items: center;
   gap: 5px;
-  background: transparent;
-  border: none;
-  border-radius: var(--radius);
+  /* Frosted chip so the button reads as a floating control over any
+     content scrolling beneath it. */
+  background: rgba(29, 32, 39, 0.72);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+/* Without backdrop-filter support the chip needs to be near-opaque to
+   keep text behind it legible-free. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .menu-btn { background: rgba(29, 32, 39, 0.95); }
+}
+
+.menu-btn:hover {
+  background: rgba(41, 45, 55, 0.8);
+  border-color: rgba(255, 255, 255, 0.16);
 }
 .menu-btn .bar {
   width: 22px;
@@ -140,7 +162,6 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
   display: block;
   width: 46px;
   height: 46px;
-  border-radius: 12px;
 }
 
 .drawer-close {
@@ -348,6 +369,9 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
 
 .arrow {
   flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   width: 52px;
   height: 52px;
   border-radius: 50%;
@@ -357,7 +381,7 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
   font-size: 30px;
   line-height: 1;
   cursor: pointer;
-  margin-top: 30px;
+  margin-top: 12px; /* lines the circles up with the poster row's centre */
   box-shadow: 0 8px 22px rgba(124, 92, 191, 0.35);
   transition: background 0.2s ease, transform 0.2s ease;
 }
@@ -390,12 +414,15 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
   gap: 12px;
   text-align: center;
 }
+/* The logo artwork is itself a circle with transparent corners, so the
+   image is never cropped or rounded here — a drop-shadow follows the
+   circular alpha shape instead of a square box-shadow. */
 .home-logo {
   width: clamp(76px, 14vw, 112px);
+  height: auto;
   aspect-ratio: 1;
-  object-fit: cover;
-  border-radius: 22%;
-  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.55);
+  object-fit: contain;
+  filter: drop-shadow(0 14px 34px rgba(0, 0, 0, 0.55));
 }
 .home-title {
   font-size: clamp(38px, 8vw, 62px);
@@ -492,6 +519,45 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
 }
 .info-card h3 { font-size: 18px; margin-bottom: 6px; }
 .info-card p { margin: 0; font-size: 15px; }
+
+/* Social logo buttons on find-us.html */
+
+.social-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin: 18px 0;
+}
+
+.social-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius);
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+}
+
+.social-btn:hover,
+.social-btn:focus-visible {
+  transform: translateY(-3px);
+  border-color: currentColor;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.social-btn svg { width: 27px; height: 27px; }
+
+/* Letterboxd's three-circle mark is wide rather than square */
+.social-btn-letterboxd svg { width: 46px; height: 17px; }
+
+.social-btn-instagram { color: #e4405f; }
+.social-btn-tiktok { color: var(--text); }
+.social-btn-letterboxd { color: #00e054; }
+.social-btn-whatsapp { color: #25d366; }
+.social-btn-linktree { color: #43e660; }
 
 /* Programme list on admin.html (the public films page uses .film-grid) */
 
@@ -660,7 +726,9 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
   .arrow {
     position: absolute;
     top: 50%;
-    margin-top: 30px;
+    /* top:50% is the button's top edge, so pull up by half its height plus
+       the poster row's small offset below the stage centre. */
+    margin-top: -10px;
     width: 40px;
     height: 40px;
     font-size: 24px;
@@ -1177,4 +1245,145 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
   .poster-preview { max-width: 150px; }
   .form-pair { grid-template-columns: 1fr; }
   .lineup-actions { margin-left: 0; }
+}
+
+/* ── Bingo night (bingo.html) ──────────────────────── */
+
+.bingo-intro {
+  display: grid;
+  gap: 12px;
+  justify-items: start;
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--radius);
+  padding: 24px 26px;
+  max-width: 560px;
+}
+.bingo-intro p { margin: 0; }
+
+.bingo-fair { color: var(--text-muted); font-size: 14px; }
+
+.bingo-generate {
+  padding: 14px 30px;
+  border: none;
+  border-radius: 999px;
+  background: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  box-shadow: 0 8px 22px rgba(124, 92, 191, 0.35);
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.bingo-generate:hover,
+.bingo-generate:focus-visible { background: var(--accent-bright); transform: scale(1.04); }
+.bingo-generate:active { transform: scale(0.97); }
+
+.bingo-board { max-width: 560px; }
+
+.bingo-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+
+.bingo-cell {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 122px;
+  padding: 14px 10px;
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: var(--radius);
+  color: var(--text);
+  font: inherit;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: center;
+  cursor: pointer;
+  overflow: hidden;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.bingo-cell:hover { border-color: rgba(157, 130, 214, 0.6); }
+.bingo-cell:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+.bingo-cell:active { transform: scale(0.98); }
+
+.bingo-cell-prefix {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+/* The cross-off: an accent bar sweeping diagonally across the square. */
+.bingo-cell::before {
+  content: "";
+  position: absolute;
+  left: -8%;
+  top: 50%;
+  width: 116%;
+  height: 5px;
+  border-radius: 4px;
+  background: var(--accent-bright);
+  box-shadow: 0 0 12px rgba(157, 130, 214, 0.5);
+  transform: rotate(-33deg) scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.25s ease;
+}
+.bingo-cell.marked::before { transform: rotate(-33deg) scaleX(1); }
+
+.bingo-cell.marked {
+  background: rgba(124, 92, 191, 0.14);
+  border-color: rgba(124, 92, 191, 0.4);
+}
+.bingo-cell.marked .bingo-cell-text { color: var(--text-muted); }
+
+/* Completed lines light up in the same gold as the star ratings. */
+.bingo-cell.win {
+  border-color: rgba(245, 197, 24, 0.7);
+  box-shadow: 0 0 18px rgba(245, 197, 24, 0.22);
+}
+
+.bingo-win {
+  margin: 18px 0 0;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 36px;
+  color: #f5c518;
+  text-shadow: 0 0 26px rgba(245, 197, 24, 0.45);
+  animation: bingo-pop 0.45s ease;
+}
+
+@keyframes bingo-pop {
+  0% { transform: scale(0.5); opacity: 0; }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.bingo-hint { color: var(--text-muted); font-size: 14px; margin-top: 10px; }
+
+.bingo-reset { margin-top: 6px; }
+
+/* Squares appear one by one as the sheet is dealt. */
+.bingo-grid > .bingo-cell { animation: rise-in 0.4s ease backwards; }
+.bingo-grid > .bingo-cell:nth-child(2) { animation-delay: 0.05s; }
+.bingo-grid > .bingo-cell:nth-child(3) { animation-delay: 0.1s; }
+.bingo-grid > .bingo-cell:nth-child(4) { animation-delay: 0.15s; }
+.bingo-grid > .bingo-cell:nth-child(5) { animation-delay: 0.2s; }
+.bingo-grid > .bingo-cell:nth-child(6) { animation-delay: 0.25s; }
+.bingo-grid > .bingo-cell:nth-child(7) { animation-delay: 0.3s; }
+.bingo-grid > .bingo-cell:nth-child(8) { animation-delay: 0.35s; }
+.bingo-grid > .bingo-cell:nth-child(9) { animation-delay: 0.4s; }
+
+@media (max-width: 620px) {
+  .bingo-cell { min-height: 108px; font-size: 13px; }
+  .bingo-win { font-size: 30px; }
 }

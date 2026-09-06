@@ -12,3 +12,7 @@ declare(strict_types=1);
 
 const ADMIN_KEY = 'joel';
 const TMDB_KEY = 'PASTE-YOUR-TMDB-KEY-HERE';
+
+// Password for the "site in development" gate page (gate.php). Pick
+// something, share it sparingly, change it here whenever.
+const GATE_PASSWORD = 'PASTE-A-GATE-PASSWORD-HERE';

@@ -25,17 +25,6 @@ function filmPageUrl(film) {
   return `film.html?id=${encodeURIComponent(film.id)}`;
 }
 
-// Same Monday–Sunday week as today → "this week".
-function sameWeekAsToday(d) {
-  const monday = (x) => {
-    const c = new Date(x);
-    c.setHours(0, 0, 0, 0);
-    c.setDate(c.getDate() - ((c.getDay() + 6) % 7));
-    return c;
-  };
-  return monday(d).getTime() === monday(new Date()).getTime();
-}
-
 /* ── Side drawer (all pages) ─────────────────────────── */
 
 const drawer = document.getElementById("sideDrawer");
@@ -80,8 +69,16 @@ const trackEl = document.getElementById("track");
 
 if (trackEl) {
   const n = films.length;
-  const thisWeekIndex = films.findIndex((f) => sameWeekAsToday(parseISO(f.date)));
-  let v = thisWeekIndex >= 0 ? thisWeekIndex : 0; // land on this week's film
+  // Open on the next screening — the same film the "next screening" callout
+  // above the carousel names (a film showing tonight still counts as next).
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  let nextIndex = -1;
+  films.forEach((film, i) => {
+    const d = parseISO(film.date);
+    if (d >= today && (nextIndex === -1 || d < parseISO(films[nextIndex].date))) nextIndex = i;
+  });
+  let v = nextIndex >= 0 ? nextIndex : 0; // everything screened → start of term
   let animating = false;
 
   const prevBtn = document.getElementById("prevBtn");
@@ -94,9 +91,10 @@ if (trackEl) {
     const dateLabel = document.createElement("div");
     dateLabel.className = "card-date";
     const dt = parseISO(film.date);
-    dateLabel.innerHTML = i === thisWeekIndex
-      ? `${formatDate(dt)} <span class="week-tag">(this week)</span>`
-      : formatDate(dt);
+    const tag = i === nextIndex
+      ? (dt.getTime() === today.getTime() ? "(tonight)" : "(next screening)")
+      : "";
+    dateLabel.innerHTML = tag ? `${formatDate(dt)} <span class="week-tag">${tag}</span>` : formatDate(dt);
     const link = document.createElement("a");
     link.className = "poster-link";
     link.href = filmPageUrl(film);

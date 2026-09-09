@@ -41,6 +41,11 @@ const bingoGrid = document.getElementById("bingoGrid");
 const generateBtn = document.getElementById("generateBtn");
 const resetBtn = document.getElementById("resetBtn");
 const bingoWin = document.getElementById("bingoWin");
+const modalBackdrop = document.getElementById("bingoModalBackdrop");
+const modalSquare = document.getElementById("bingoModalSquare");
+const nameInput = document.getElementById("bingoNameInput");
+const nameCancelBtn = document.getElementById("bingoNameCancel");
+const nameSaveBtn = document.getElementById("bingoNameSave");
 
 function loadSheet() {
   try {
@@ -49,7 +54,10 @@ function loadSheet() {
       && Array.isArray(sheet.cells) && sheet.cells.length === 9
       && Array.isArray(sheet.marks) && sheet.marks.length === 9
       && sheet.cells.every((i) => Number.isInteger(i) && i >= 0 && i < BINGO_SQUARES.length);
-    return valid ? sheet : null;
+    if (!valid) return null;
+    // Sheets saved before names were recorded get blank name entries.
+    if (!Array.isArray(sheet.names)) sheet.names = Array(9).fill("");
+    return sheet;
   } catch {
     return null;
   }
@@ -75,6 +83,25 @@ function paintWins(sheet) {
   bingoWin.hidden = !won;
 }
 
+// Refreshes one square's cross-off state and name without rebuilding the
+// grid (a full re-render would replay the deal-in animation).
+function paintCell(sheet, i) {
+  const cell = bingoGrid.children[i];
+  cell.classList.toggle("marked", sheet.marks[i]);
+  cell.setAttribute("aria-pressed", String(sheet.marks[i]));
+  let name = cell.querySelector(".bingo-cell-name");
+  if (sheet.names[i]) {
+    if (!name) {
+      name = document.createElement("span");
+      name.className = "bingo-cell-name";
+      cell.appendChild(name);
+    }
+    name.textContent = sheet.names[i];
+  } else if (name) {
+    name.remove();
+  }
+}
+
 function renderSheet(sheet) {
   bingoGrid.replaceChildren();
   sheet.cells.forEach((squareIndex, i) => {
@@ -89,18 +116,68 @@ function renderSheet(sheet) {
     text.className = "bingo-cell-text";
     text.textContent = BINGO_SQUARES[squareIndex];
     cell.append(prefix, text);
-    if (sheet.marks[i]) cell.classList.add("marked");
     cell.addEventListener("click", () => {
-      sheet.marks[i] = !sheet.marks[i];
-      cell.classList.toggle("marked", sheet.marks[i]);
-      cell.setAttribute("aria-pressed", String(sheet.marks[i]));
-      saveSheet(sheet);
-      paintWins(sheet);
+      if (sheet.marks[i]) unmarkSquare(sheet, i);
+      else openNameModal(sheet, i);
     });
     bingoGrid.appendChild(cell);
+    paintCell(sheet, i);
   });
   paintWins(sheet);
 }
+
+/* ── Name entry dialog ─────────────────────────────── */
+
+let activeCell = null; // { sheet, i } of the square the dialog is editing
+
+function openNameModal(sheet, i) {
+  activeCell = { sheet, i };
+  modalSquare.textContent = BINGO_SQUARES[sheet.cells[i]];
+  nameInput.value = "";
+  modalBackdrop.hidden = false;
+  nameInput.focus();
+}
+
+function closeNameModal() {
+  activeCell = null;
+  modalBackdrop.hidden = true;
+}
+
+// Only a named person crosses a square off — an empty entry keeps it open.
+function saveName() {
+  if (!activeCell) return;
+  const name = nameInput.value.trim();
+  if (!name) {
+    nameInput.focus();
+    return;
+  }
+  const { sheet, i } = activeCell;
+  sheet.marks[i] = true;
+  sheet.names[i] = name;
+  saveSheet(sheet);
+  paintCell(sheet, i);
+  paintWins(sheet);
+  closeNameModal();
+}
+
+function unmarkSquare(sheet, i) {
+  if (!confirm(`Remove ${sheet.names[i]} from this square?`)) return;
+  sheet.marks[i] = false;
+  sheet.names[i] = "";
+  saveSheet(sheet);
+  paintCell(sheet, i);
+  paintWins(sheet);
+}
+
+nameSaveBtn.addEventListener("click", saveName);
+nameCancelBtn.addEventListener("click", closeNameModal);
+modalBackdrop.addEventListener("click", (e) => {
+  if (e.target === modalBackdrop) closeNameModal();
+});
+nameInput.addEventListener("keydown", (e) => {
+  if (e.key === "Enter") saveName();
+  if (e.key === "Escape") closeNameModal();
+});
 
 function showIntro() {
   bingoIntro.hidden = false;
@@ -114,13 +191,13 @@ function showBoard(sheet) {
 }
 
 generateBtn.addEventListener("click", () => {
-  const sheet = { cells: generateCells(), marks: Array(9).fill(false) };
+  const sheet = { cells: generateCells(), marks: Array(9).fill(false), names: Array(9).fill("") };
   saveSheet(sheet);
   showBoard(sheet);
 });
 
 resetBtn.addEventListener("click", () => {
-  if (!confirm("Start a new sheet? Your current squares and crosses will be lost.")) return;
+  if (!confirm("Start a new sheet? Your current squares, names and crosses will be lost.")) return;
   localStorage.removeItem(BINGO_STORAGE_KEY);
   showIntro();
 });

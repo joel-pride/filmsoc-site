@@ -481,11 +481,18 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
 }
 .info-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  /* Always three across — auto-fit left the last tile wrapping onto its own
+     row at medium widths. */
+  grid-template-columns: repeat(3, 1fr);
   gap: 14px;
   margin-top: 14px;
 }
 .info-grid .info-card { margin: 0; }
+
+/* Below this, three columns get too narrow for the card text. */
+@media (max-width: 620px) {
+  .info-grid { grid-template-columns: 1fr; }
+}
 
 /* ── Content pages ────────────────────────────────── */
 
@@ -1377,6 +1384,51 @@ body.drawer-open .topbar { opacity: 0; pointer-events: none; }
 .bingo-hint { color: var(--text-muted); font-size: 14px; margin-top: 10px; }
 
 .bingo-reset { margin-top: 6px; }
+
+/* The name sits under the square's prompt, picked out in the accent colour
+   so it survives the cross-off strike and dimming. */
+.bingo-cell-name {
+  color: var(--accent-bright);
+  font-weight: 700;
+  font-size: 13px;
+  overflow-wrap: anywhere;
+}
+
+/* Name entry dialog, opened by tapping an empty square. */
+.bingo-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+.bingo-modal {
+  width: min(420px, 100%);
+  display: grid;
+  gap: 12px;
+  background: var(--bg-raised);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: var(--radius);
+  padding: 22px 24px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  animation: rise-in 0.25s ease;
+}
+.bingo-modal-title { font-size: 20px; margin: 0; }
+.bingo-modal-square { margin: 0; color: var(--text-muted); font-size: 14px; }
+.bingo-modal-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 8px;
+  color: var(--text);
+  padding: 10px 12px;
+  font: inherit;
+}
+.bingo-modal-input:focus { outline: none; border-color: var(--accent); }
+.bingo-modal-actions { display: flex; justify-content: flex-end; gap: 10px; }
 
 /* Squares appear one by one as the sheet is dealt. */
 .bingo-grid > .bingo-cell { animation: rise-in 0.4s ease backwards; }

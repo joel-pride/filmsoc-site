@@ -44,7 +44,6 @@
       <li><a href="bingo.html" data-nav="bingo">Bingo Night</a></li>
     </ul>
     <div class="drawer-foot">
-      <p>Films · Friends · Popcorn</p>
       <p class="drawer-foot-sub">Every Tuesday, 7pm</p>
       <a class="drawer-admin-link" href="admin.html">Committee: manage the line-up</a>
     </div>
@@ -56,9 +55,9 @@
 
     <section class="bingo-intro" id="bingoIntro" aria-label="How bingo night works">
       <p>
-        Cross off a square once you've found someone who fits it — compare top 4s, favourite
-        actors and cinema habits until every box has a name in it. First to a full house —
-        all nine squares — wins!
+        Tap a square once you've found someone who fits it and put their name in it — compare
+        top 4s, favourite actors and cinema habits until every box has a name in it. First to
+        a full house — all nine squares — wins!
       </p>
 
       <button class="bingo-generate" id="generateBtn" type="button">Generate bingo sheet</button>
@@ -67,10 +66,23 @@
     <section class="bingo-board" id="bingoBoard" hidden aria-label="Your bingo sheet">
       <div class="bingo-grid" id="bingoGrid"></div>
       <p class="bingo-win" id="bingoWin" hidden>Full house!</p>
-      <p class="bingo-hint">Tap a square to cross it off — fill all nine for a full house.</p>
+      <p class="bingo-hint">Tap a square and enter who fits it — fill all nine for a full house.</p>
       <button class="mini-btn bingo-reset" id="resetBtn" type="button">Start a new sheet</button>
     </section>
   </main>
+
+  <div class="bingo-modal-backdrop" id="bingoModalBackdrop" hidden>
+    <div class="bingo-modal" role="dialog" aria-modal="true" aria-labelledby="bingoModalTitle">
+      <h2 class="bingo-modal-title" id="bingoModalTitle">Find someone…</h2>
+      <p class="bingo-modal-square" id="bingoModalSquare"></p>
+      <input class="bingo-modal-input" id="bingoNameInput" type="text" maxlength="40"
+             placeholder="Their name" aria-label="Their name" autocomplete="off">
+      <div class="bingo-modal-actions">
+        <button class="mini-btn" id="bingoNameCancel" type="button">Cancel</button>
+        <button class="submit-btn" id="bingoNameSave" type="button">Cross it off</button>
+      </div>
+    </div>
+  </div>
 
   <footer class="site-footer"></footer>
 

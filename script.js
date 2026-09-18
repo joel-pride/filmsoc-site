@@ -373,6 +373,10 @@ function setupReviews(film) {
   const reviewsNote = document.getElementById("reviewsNote");
   const reviewsList = document.getElementById("reviewsList");
   const noReviews = document.getElementById("noReviews");
+  const lbForm = document.getElementById("lbForm");
+  const lbUser = document.getElementById("lbUser");
+  const lbBtn = document.getElementById("lbBtn");
+  const lbStatus = document.getElementById("lbStatus");
   const avgBlock = document.getElementById("avgBlock");
   const avgStarsFill = document.getElementById("avgStarsFill");
   const avgText = document.getElementById("avgText");
@@ -457,12 +461,34 @@ function setupReviews(film) {
       const name = document.createElement("span");
       name.className = "review-name";
       name.textContent = r.name;
-      const stars = starMeter(r.rating);
-      stars.classList.add("review-stars");
+      // Imported reviews can be rating-less on Letterboxd — no meter then.
+      const stars = r.rating != null ? starMeter(r.rating) : null;
+      if (stars) stars.classList.add("review-stars");
       const date = document.createElement("span");
       date.className = "review-date";
       date.textContent = new Date(r.ts * 1000).toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
-      head.append(name, stars, date);
+      head.append(name);
+      if (stars) head.appendChild(stars);
+      // Imported reviews link back to the Letterboxd original, badge with
+      // the three-dot mark. The link's label carries the meaning, so the
+      // logo itself stays decorative.
+      if (r.lb && r.lb.link) {
+        const via = document.createElement("a");
+        via.className = "review-via";
+        via.href = r.lb.link;
+        via.target = "_blank";
+        via.rel = "noopener";
+        via.setAttribute("aria-label", `Read ${r.name}'s review on Letterboxd (opens in a new tab)`);
+        via.title = "Read on Letterboxd";
+        const logo = document.createElement("img");
+        logo.src = "images/letterboxd-mark.svg";
+        logo.alt = "";
+        logo.width = 27;
+        logo.height = 10;
+        via.appendChild(logo);
+        head.appendChild(via);
+      }
+      head.appendChild(date);
       if (adminKey && r.id) {
         const del = document.createElement("button");
         del.type = "button";
@@ -489,11 +515,13 @@ function setupReviews(film) {
   }
 
   function renderAverage(reviews) {
-    avgBlock.hidden = reviews.length === 0;
-    if (!reviews.length) return;
-    const avg = reviews.reduce((sum, r) => sum + r.rating, 0) / reviews.length;
+    // Rating-less imports are shown but don't count towards the average.
+    const rated = reviews.filter((r) => typeof r.rating === "number");
+    avgBlock.hidden = rated.length === 0;
+    if (!rated.length) return;
+    const avg = rated.reduce((sum, r) => sum + r.rating, 0) / rated.length;
     avgStarsFill.style.width = `${(avg / 5) * 100}%`;
-    avgText.textContent = `${avg.toFixed(1)} from ${reviews.length} rating${reviews.length === 1 ? "" : "s"}`;
+    avgText.textContent = `${avg.toFixed(1)} from ${rated.length} rating${rated.length === 1 ? "" : "s"}`;
   }
 
   // One payload shape from every endpoint: { open, reviews }.
@@ -501,6 +529,7 @@ function setupReviews(film) {
     reviewsOpen = Boolean(data.open);
     currentReviews = data.reviews || [];
     form.hidden = !reviewsOpen;
+    lbForm.hidden = !reviewsOpen;
     if (!reviewsBroken) {
       reviewsNote.hidden = reviewsOpen;
       reviewsNote.textContent = "Reviews are closed right now — they usually open after the screening, so check back soon!";
@@ -622,6 +651,34 @@ function setupReviews(film) {
     } finally {
       submitBtn.disabled = false;
       submitBtn.textContent = "Post review";
+    }
+  });
+
+  // Import the visitor's own Letterboxd review of this film. The server
+  // only ever returns this film's review from their feed.
+  lbForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    lbStatus.hidden = true;
+    lbStatus.classList.remove("lb-ok");
+    const user = lbUser.value.trim();
+    if (!user) {
+      lbStatus.textContent = "Enter your Letterboxd username first.";
+      lbStatus.hidden = false;
+      return;
+    }
+    lbBtn.disabled = true;
+    lbBtn.textContent = "Importing…";
+    try {
+      applyState(await post({ action: "import-letterboxd", user }));
+      lbUser.value = "";
+      lbStatus.textContent = "Imported — your review is live below!";
+      lbStatus.classList.add("lb-ok");
+    } catch (err) {
+      lbStatus.textContent = err.message;
+    } finally {
+      lbStatus.hidden = false;
+      lbBtn.disabled = false;
+      lbBtn.textContent = "Import review";
     }
   });
 

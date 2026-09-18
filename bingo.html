@@ -3,12 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bingo Night — FilmSoc</title>
+  <title>Bingo — FilmSoc</title>
   <meta name="theme-color" content="#16181d">
   <meta property="og:site_name" content="Southampton Film Society">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="Bingo Night — Southampton Film Society">
-  <meta property="og:description" content="A one-off film society bingo night — generate your sheet and find members who fit each square.">
+  <meta property="og:title" content="Bingo — Southampton Film Society">
+  <meta property="og:description" content="A one-off film society bingo — generate your sheet and find members who fit each square.">
   <meta property="og:image" content="images/logo.png">
   <link rel="icon" type="image/png" sizes="96x96" href="images/favicon.png">
   <link rel="apple-touch-icon" href="images/apple-touch-icon.png">
@@ -19,45 +19,16 @@
 </head>
 <body data-page="bingo">
 
-  <header class="topbar">
-    <button id="menuBtn" class="menu-btn" aria-label="Open menu" aria-controls="sideDrawer" aria-expanded="false">
-      <span class="bar"></span>
-      <span class="bar"></span>
-      <span class="bar"></span>
-    </button>
-  </header>
-
-  <div class="drawer-backdrop" id="drawerBackdrop" hidden></div>
-
-  <nav class="drawer" id="sideDrawer" aria-label="Site navigation">
-    <div class="drawer-head">
-      <a class="brand" href="index.html" aria-label="Southampton Film Society — home">
-        <img class="brand-logo" src="images/logo.png" alt="" width="46" height="46">
-      </a>
-      <button class="drawer-close" id="drawerClose" aria-label="Close menu">&times;</button>
-    </div>
-    <ul class="drawer-links">
-      <li><a href="index.html" data-nav="home">Home</a></li>
-      <li><a href="about.html" data-nav="about">About Us</a></li>
-      <li><a href="films.html" data-nav="films">What's On</a></li>
-      <li><a href="find-us.html" data-nav="find-us">Where To Find Us</a></li>
-      <li><a href="bingo.html" data-nav="bingo">Bingo Night</a></li>
-    </ul>
-    <div class="drawer-foot">
-      <p class="drawer-foot-sub">Every Tuesday, 7pm</p>
-      <a class="drawer-admin-link" href="admin.html">Committee: manage the line-up</a>
-    </div>
-  </nav>
-
+  <!-- No topbar/drawer here: this is the one public page (exempted from the
+       gate in deploy/apache-site-template.conf), so during bingo night it
+       must not link visitors into the still-password-protected site. -->
   <main class="page">
     <h1>Bingo</h1>
-    <p class="lede">A one-off special: generate your sheet, then find a member for every square.</p>
+    <p class="lede">Generate your sheet, then find a member for every square.</p>
 
-    <section class="bingo-intro" id="bingoIntro" aria-label="How bingo night works">
+    <section class="bingo-intro" id="bingoIntro" aria-label="How bingo works">
       <p>
-        Tap a square once you've found someone who fits it and put their name in it — compare
-        top 4s, favourite actors and cinema habits until every box has a name in it. First to
-        a full house — all nine squares — wins!
+        Tap a square once you've found someone who fits it and put their name in it. First to fill all 9 squares wins!
       </p>
 
       <button class="bingo-generate" id="generateBtn" type="button">Generate bingo sheet</button>
@@ -86,8 +57,8 @@
 
   <footer class="site-footer"></footer>
 
-  <script src="films.js"></script>
-  <script src="script.js"></script>
+  <!-- bingo.js only: no films.js/script.js, whose sole job here was the
+       drawer — and films.js would publish the gated line-up. -->
   <script src="bingo.js"></script>
 </body>
 </html>

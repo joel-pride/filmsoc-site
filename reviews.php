@@ -6,6 +6,10 @@
 //
 //   POST reviews.php?film=<id>   (JSON body)
 //        { name, rating, review }                  add a review (must be open)
+//        { action: "import-letterboxd", user }     pull the user's Letterboxd
+//                                                   review of THIS film out of
+//                                                   their public RSS feed and
+//                                                   store it (must be open)
 //        { action: "auth", key }                   check the admin key
 //        { action: "set-open", key, open: bool }   open / close this film's reviews
 //        { action: "delete", key, id }             delete one review by id
@@ -78,6 +82,130 @@ function film_id(): ?string {
     return (is_string($id) && preg_match('/^[a-z0-9][a-z0-9-]{0,60}$/', $id) === 1) ? $id : null;
 }
 
+/* ── Letterboxd import ─────────────────────────────────────────────── */
+
+// Members can review on Letterboxd instead of the site. The action above
+// pulls ONE review — the user's review of THIS film — out of their public
+// RSS feed (letterboxd.com/<user>/rss/, no API key needed) and stores it
+// alongside the native reviews. Nothing else in their feed is read or
+// kept. Feeds are cached for two minutes per username so a roomful of
+// members hammering the button doesn't hammer Letterboxd.
+
+const LB_CACHE_DIR = __DIR__ . '/letterboxd-cache';
+const LB_CACHE_TTL = 120;
+
+// The slugs this film's review can hide behind in an RSS item link. The
+// film id is normally the Letterboxd slug already, but ids like "parasite"
+// link to "parasite-2019" — films.json's url field is the truth there.
+function letterboxd_slugs(string $id): array {
+    $slugs = [$id];
+    $films = json_decode((string) @file_get_contents(__DIR__ . '/films.json'), true);
+    if (is_array($films)) {
+        foreach ($films as $film) {
+            if (($film['id'] ?? null) !== $id) continue;
+            if (isset($film['url']) && preg_match('#letterboxd\.com/film/([a-z0-9-]+)#', $film['url'], $m)) {
+                array_unshift($slugs, $m[1]);
+            }
+            break;
+        }
+    }
+    return array_values(array_unique($slugs));
+}
+
+// Fetch the user's feed through the short-lived cache. Returns the raw
+// XML, or null if it couldn't be fetched; $status gets the HTTP status
+// (0 = couldn't connect at all). Uses ext-curl, which php:8.3-apache
+// ships with, for real status codes (404 = no such user).
+function fetch_letterboxd_rss(string $user, int &$status): ?string {
+    if (!is_dir(LB_CACHE_DIR)) @mkdir(LB_CACHE_DIR, 0775, true);
+    $cache = LB_CACHE_DIR . '/' . md5(strtolower($user)) . '.xml';
+
+    if (is_file($cache) && time() - filemtime($cache) < LB_CACHE_TTL) {
+        $status = 200;
+        return (string) file_get_contents($cache);
+    }
+
+    $ch = curl_init("https://letterboxd.com/{$user}/rss/");
+    curl_setopt_array($ch, [
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_FOLLOWLOCATION => true,
+        CURLOPT_CONNECTTIMEOUT => 5,
+        CURLOPT_TIMEOUT        => 8,
+        CURLOPT_USERAGENT      => 'FilmSoc review importer',
+    ]);
+    $xml = curl_exec($ch);
+    $status = (int) curl_getinfo($ch, CURLINFO_RESPONSE_CODE);
+    unset($ch);
+
+    if ($status === 200 && is_string($xml) && $xml !== '') {
+        @file_put_contents($cache, $xml, LOCK_EX);
+        return $xml;
+    }
+    // Letterboxd hiccuped — a stale cached feed beats an error.
+    if (is_file($cache)) {
+        $status = 200;
+        return (string) file_get_contents($cache);
+    }
+    return null;
+}
+
+// Pull the user's review of this film out of their feed. Items are matched
+// on the /film/<slug>/ part of their link, so other films, lists and logs
+// are never touched. Rating-only logs (no text) don't count as reviews.
+// With several matches (a rewatch), the newest wins. Returns a review
+// shape, or null if this film isn't in the feed.
+function find_letterboxd_review(string $xml, array $slugs, string $user): ?array {
+    $rss = @simplexml_load_string($xml);
+    if ($rss === false || !isset($rss->channel->item)) return null;
+
+    $best = null;
+    foreach ($rss->channel->item as $item) {
+        // Only genuine reviews import. Letterboxd tags each feed item's
+        // guid with its type — watch logs (letterboxd-watch-…), lists and
+        // stories are all skipped, so a rating-only log never shows up.
+        $guid = (string) $item->guid;
+        if (strpos($guid, 'letterboxd-review-') !== 0) continue;
+
+        $link = (string) $item->link;
+        $matched = false;
+        foreach ($slugs as $slug) {
+            if (strpos($link, "/film/{$slug}/") !== false) { $matched = true; break; }
+        }
+        if (!$matched) continue;
+
+        // The description is a poster <img> followed by the review's HTML;
+        // dropping the img, the tags and the entities leaves just the text.
+        $html = preg_replace('#<img[^>]*>#i', '', (string) $item->description);
+        $text = trim((string) preg_replace('/\s+/', ' ', html_entity_decode(strip_tags((string) $html), ENT_QUOTES | ENT_HTML5)));
+        // Belt and braces: a lone "Watched on Sunday November 10, 2019."
+        // line is log boilerplate, not a review. Full match only, so a
+        // review that merely starts with "Watched on a plane…" survives.
+        if ($text === '' || preg_match('/^(?:watched|rewatched) on [a-z]+ [a-z]+ \d{1,2}, \d{4}\.?$/i', $text)) continue;
+
+        $lb = $item->children('letterboxd', true);
+        $dc = $item->children('dc', true);
+        $rawRating = trim((string) ($lb->memberRating ?? ''));
+        if ($rawRating !== '') {
+            $rating = round(((float) $rawRating) * 2) / 2;          // half-star steps
+            $rating = fmod($rating, 1) === 0.0 ? (int) $rating : $rating; // store 4, not 4.0
+        } else {
+            $rating = null;                                         // rating-less reviews exist
+        }
+        $name = trim((string) ($dc->creator ?? ''));
+        $ts = strtotime((string) $item->pubDate);
+
+        $candidate = [
+            'name'   => $name !== '' ? $name : $user,
+            'rating' => $rating,
+            'review' => mb_substr($text, 0, 2000),
+            'link'   => $link,
+            'ts'     => $ts !== false ? $ts : time(),
+        ];
+        if ($best === null || $candidate['ts'] >= $best['ts']) $best = $candidate;
+    }
+    return $best;
+}
+
 $method = $_SERVER['REQUEST_METHOD'] ?? 'GET';
 if ($method !== 'GET' && $method !== 'POST') respond(405, ['error' => 'Method not allowed.']);
 
@@ -126,6 +254,53 @@ if ($action === 'delete') {
     $all[$id] = $entry;
     if (!save_all($all)) respond(500, ['error' => 'Could not save — reviews.json is not writable.']);
     respond(200, payload($all, $id));
+}
+
+if ($action === 'import-letterboxd') {
+    $user = trim((string) ($input['user'] ?? ''));
+    if (!preg_match('/^[A-Za-z0-9_-]{1,30}$/', $user)) {
+        respond(422, ['error' => "That doesn't look like a Letterboxd username — it's the name in your profile URL (letters, numbers, - and _)."]);
+    }
+
+    $all = load_all();
+    $entry = film_entry($all, $id);
+    if (!$entry['open']) respond(403, ['error' => 'Reviews are closed for this film right now.']);
+
+    $status = 0;
+    $xml = fetch_letterboxd_rss($user, $status);
+    if ($status === 404) {
+        respond(404, ['error' => "No Letterboxd user called \"{$user}\" — check the spelling (it's the name in your profile URL)."]);
+    }
+    if ($xml === null) {
+        respond(502, ['error' => 'Letterboxd could not be reached — try again in a moment.']);
+    }
+
+    $found = find_letterboxd_review($xml, letterboxd_slugs($id), $user);
+    if ($found === null) {
+        respond(404, ['error' => "Couldn't find a written review of this film by {$user} — logging or rating it isn't enough, it needs an actual review. If you only just posted it, Letterboxd's feed can take a few minutes to catch up — try again shortly."]);
+    }
+
+    // Re-importing replaces the previous copy rather than stacking
+    // duplicates, so editing the review on Letterboxd and submitting again
+    // updates it in place.
+    $luser = strtolower($user);
+    $entry['reviews'] = array_values(array_filter(
+        $entry['reviews'],
+        fn($r) => (($r['lb']['user'] ?? null) !== $luser)
+    ));
+    $entry['reviews'][] = [
+        'id'     => bin2hex(random_bytes(6)),
+        'name'   => mb_substr($found['name'], 0, 50),
+        'rating' => $found['rating'],
+        'review' => $found['review'],
+        'ts'     => $found['ts'],
+        'lb'     => ['user' => $luser, 'link' => $found['link']],
+    ];
+    $all[$id] = $entry;
+
+    if (!save_all($all)) respond(500, ['error' => 'Could not save the review — reviews.json is not writable.']);
+
+    respond(201, payload($all, $id));
 }
 
 // Default action: add a review. Only allowed while the film's reviews are open.

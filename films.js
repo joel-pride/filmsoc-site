@@ -64,22 +64,24 @@ const FILMS = [
         "backdrop": "https://image.tmdb.org/t/p/w1280/5XNQBqnBwPA9yT0jZ0p3s8bbLh0.jpg"
     },
     {
-        "id": "whiplash-2014",
-        "title": "Whiplash",
-        "year": 2014,
+        "id": "10-things-i-hate-about-you",
+        "title": "10 Things I Hate About You",
+        "year": 1999,
         "date": "2026-09-17",
-        "poster": "images/whiplash.jpg",
-        "url": "https://letterboxd.com/film/whiplash-2014/",
-        "director": "Damien Chazelle",
-        "runtime": 106,
+        "poster": "https://image.tmdb.org/t/p/w500/ujERk3aKABXU3NDXOAxEQYTHe9A.jpg",
+        "backdrop": "https://image.tmdb.org/t/p/w1280/yvPbncYhMu9FfTjDhq0N5lgnVkO.jpg",
+        "url": "https://letterboxd.com/film/10-things-i-hate-about-you/",
+        "director": "Gil Junger",
+        "runtime": 97,
         "genres": [
-            "Drama",
-            "Music"
+            "Comedy",
+            "Romance",
+            "Drama"
         ],
-        "synopsis": "A promising young drummer enrolls at a cut-throat music conservatory, where his dreams of greatness are mentored by an instructor who will stop at nothing to realise a student's potential.",
-        "blurb": "Not quite my tempo. Two knockout performances and a final scene you'll be talking about all the way home.",
-        "content": "Strong language",
-        "backdrop": "https://image.tmdb.org/t/p/w1280/wbQa0EnWUyRzQ5d1pHLNRlmsCUP.jpg"
+        "synopsis": "On the first day at his new school, Cameron instantly falls for Bianca, the gorgeous girl of his dreams. The only problem is that Bianca is forbidden to date until her ill-tempered, completely un-dateable older sister Kat goes out, too. In an attempt to solve his problem, Cameron singles out the only guy who could possibly be a match for Kat: a mysterious bad boy with a nasty reputation of his own.",
+        "blurb": "Freshers Screening!",
+        "content": "",
+        "tmdb": 4951
     },
     {
         "id": "blade-runner-2049",

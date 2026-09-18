@@ -132,6 +132,7 @@ rsync -av -e "ssh -i $KEY" azureuser@$VM:/srv/web/filmsoc/films.js ./server-back
 rsync -av --delete \
   --exclude .git --exclude .idea --exclude .DS_Store --exclude server-backup \
   --exclude films.json --exclude films.js --exclude reviews.json \
+  --exclude letterboxd-cache \
   --exclude .gate-token \
   --exclude deploy --exclude DEPLOY.md \
   -e "ssh -i $KEY" ./ azureuser@$VM:/srv/web/filmsoc/
@@ -145,6 +146,8 @@ What the excludes protect:
   edits. If you ever must push a local copy, do it as a deliberate
   one-file upload (`rsync -av -e "ssh -i $KEY" ./films.js azureuser@$VM:/srv/web/filmsoc/`)
   after step 1's backup.
+- `letterboxd-cache/` — two-minute RSS caches written by reviews.php when
+  members import Letterboxd reviews. Safe to delete; it refills itself.
 - `.gate-token` — the gate's cookie secret; replacing it logs every
   visitor out.
 - `deploy/` and `DEPLOY.md` — server internals, not web pages. Uploading
@@ -234,7 +237,11 @@ a password. Share that password with whoever should get a peek.
 The gate is enforced by Apache inside the filmsoc container (rendered from
 `deploy/apache-site-template.conf` by `deploy/gate-entrypoint.sh` on every
 container start), so it covers every page, image and endpoint — not just
-the HTML. If logging in ever loops straight back to the gate, `docker
+the HTML. The one exception is **bingo night**: `bingo.html` plus the few
+assets it loads (`bingo.js`, `styles.css`, the favicon/logo icons) skip the
+gate so the sheet can be shared publicly while the rest of the site stays
+password-protected. Changing that list means editing the gate template and
+rebuilding (step 5's deploy-file procedure). If logging in ever loops straight back to the gate, `docker
 compose restart filmsoc` re-syncs things; check `docker compose logs
 filmsoc` if it doesn't.
 

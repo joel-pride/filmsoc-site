@@ -11,4 +11,7 @@ config.php
 # Cookie secret for the dev gate, generated on the server by the container.
 .gate-token
 
+# Short-lived Letterboxd RSS caches written by reviews.php on the server.
+letterboxd-cache/
+
 .DS_Store

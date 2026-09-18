@@ -90,10 +90,20 @@
       </div>
       <div class="form-row">
         <label for="reviewText">Review</label>
-        <textarea id="reviewText" rows="4" maxlength="2000" placeholder="What did you think?"></textarea>
+        <textarea id="reviewText" rows="4" maxlength="2000" placeholder="What did you think?  "></textarea>
       </div>
       <p class="form-error" id="formError" hidden></p>
       <button type="submit" class="submit-btn" id="submitBtn">Post review</button>
+    </form>
+
+    <form id="lbForm" class="lb-import" novalidate hidden>
+      <div class="lb-divider" aria-hidden="true">or review on Letterboxd</div>
+      <p class="lb-hint">Reviewed this film on Letterboxd? Enter your username and we'll pull that review across</p>
+      <div class="lb-row">
+        <input type="text" id="lbUser" maxlength="30" placeholder="Letterboxd username" autocomplete="off" aria-label="Letterboxd username">
+        <button type="submit" class="submit-btn" id="lbBtn">Import review</button>
+      </div>
+      <p class="form-error" id="lbStatus" hidden></p>
     </form>
 
     <p class="reviews-note" id="reviewsNote" hidden></p>
